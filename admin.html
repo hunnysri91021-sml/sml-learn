@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SML Learn — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:var(--g900);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-screen.hidden{display:none}
+.login-box{background:var(--w);border-radius:20px;padding:36px 32px;width:420px;max-width:90vw}
+.login-logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.login-logo-ic{width:44px;height:44px;background:var(--p);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.login-logo-ic i{font-size:24px;color:#fff}
+.login-title{font-size:22px;font-weight:700;color:var(--g900)}
+.login-sub{font-size:13px;color:var(--g400);margin-bottom:28px}
+.login-lbl{font-size:12px;font-weight:500;color:var(--g600);margin-bottom:5px}
+.login-inp{width:100%;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;font-size:14px;font-family:var(--font);outline:none;color:var(--g900);transition:border-color .15s;margin-bottom:14px}
+.login-inp:focus{border-color:var(--p)}
+.login-btn{width:100%;padding:13px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.login-btn:hover{background:var(--pm)}
+.login-err{font-size:12px;color:var(--r);text-align:center;margin-top:10px;display:none}
+.login-hint{font-size:11px;color:var(--g400);text-align:center;margin-top:14px}
+.login-role-badge{display:inline-flex;align-items:center;gap:6px;background:var(--pl);color:var(--p);font-size:12px;font-weight:500;padding:4px 12px;border-radius:50px;margin-top:8px}
+</style>
+<style>
+:root{--p:#5B3FC8;--pl:#EEE9FF;--pm:#7B5CE0;--t:#0F9E75;--tl:#E0F5EE;--a:#C87F1A;--al:#FEF0DA;--r:#D94040;--rl:#FDEAEA;--g50:#F8F8F6;--g100:#EFEFEC;--g200:#DDDDD8;--g400:#9B9A94;--g600:#5C5B56;--g900:#1A1A18;--w:#FFF;--font:'Noto Sans Thai',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;font-family:var(--font);font-size:14px;color:var(--g900);background:var(--g50)}
+button{font-family:var(--font);cursor:pointer;border:none;background:none}input,select,textarea{font-family:var(--font)}
+.app{display:flex;height:100vh}.sb{width:210px;background:var(--g900);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}.mn{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tb{height:54px;background:var(--w);border-bottom:1px solid var(--g100);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0}.ct2{flex:1;overflow-y:auto;padding:20px}
+.pg{display:none}.pg.active{display:block}
+.sb-logo{padding:18px 16px 12px;display:flex;align-items:center;gap:9px}
+.sb-li{width:32px;height:32px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center}.sb-li i{font-size:17px;color:#fff}
+.sb-lt{color:#fff;font-size:14px;font-weight:600}.sb-ls{color:var(--g400);font-size:10px;margin-top:1px}
+.sb-div{height:1px;background:rgba(255,255,255,.08);margin:4px 12px}
+.sb-sec{font-size:10px;color:var(--g400);padding:8px 16px 3px;letter-spacing:.6px;font-weight:500}
+.sbn{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:13px;color:rgba(255,255,255,.5);border-left:2px solid transparent;cursor:pointer;transition:all .15s}
+.sbn i{font-size:16px}.sbn:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05)}.sbn.active{color:#fff;border-left-color:var(--pm);background:rgba(255,255,255,.08)}
+.sb-foot{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.sb-user{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.sb-av2{width:30px;height:30px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.sb-un{font-size:12px;color:#fff;font-weight:500}.sb-ur{font-size:10px;color:var(--g400)}
+.tb-title{font-size:14px;font-weight:600}.tb-gap{flex:1}
+.tab-row{display:flex;gap:3px}
+.tab-btn{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:500;color:var(--g600);cursor:pointer;transition:all .15s}
+.tab-btn:hover{background:var(--g50)}.tab-btn.active{background:var(--p);color:#fff}
+.tb-srch{display:flex;align-items:center;gap:6px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:6px 11px}
+.tb-srch input{border:none;background:none;outline:none;font-size:13px;width:150px;color:var(--g900)}.tb-srch i{font-size:15px;color:var(--g400)}
+.sync-chip{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:7px;border:1px solid var(--g200);background:var(--g50);color:var(--g600)}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}.sd-ok{background:var(--t)}.sd-load{background:var(--a)}.sd-err{background:var(--r)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
+.btn i{font-size:15px}.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pm)}.btn-o{background:var(--w);color:var(--g600);border:1px solid var(--g200)}.btn-o:hover{background:var(--g50)}.btn-g{background:var(--t);color:#fff}.btn-r{background:var(--r);color:#fff}.btn-sm{padding:5px 10px;font-size:12px}
+.card{background:var(--w);border:1px solid var(--g100);border-radius:12px;padding:16px 18px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--w);border:1px solid var(--g100);border-radius:12px;padding:14px 16px}
+.kpi-l{font-size:11px;color:var(--g400);font-weight:500;margin-bottom:6px}.kpi-v{font-size:24px;font-weight:700;line-height:1}.kpi-s{font-size:11px;margin-top:4px;color:var(--g400)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.ct{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;color:var(--g400);border-bottom:1px solid var(--g100);background:var(--g50);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--g50)}.tw{overflow-x:auto}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:50px}
+.b-done{background:var(--tl);color:#085041}.b-prog{background:#E6F0FC;color:#0C3F7C}.b-todo{background:var(--g100);color:var(--g600)}.b-late{background:var(--rl);color:#7F1D1D}
+.b-sa{background:var(--pl);color:var(--p)}.b-hr{background:var(--tl);color:var(--t)}.b-da{background:var(--al);color:var(--a)}.b-vw{background:var(--g100);color:var(--g600)}
+.prog-bar{height:5px;background:var(--g100);border-radius:50px;overflow:hidden}.prog-fill{height:100%;border-radius:50px}
+.pf-p{background:var(--p)}.pf-t{background:var(--t)}.pf-a{background:var(--a)}.pf-r{background:var(--r)}
+.mp{display:flex;align-items:center;gap:7px}.mp .prog-bar{flex:1;min-width:50px}.mp-n{font-size:12px;font-weight:500;min-width:26px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-l{font-size:12px;color:var(--g600);width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-t{flex:1;height:7px;background:var(--g100);border-radius:50px;overflow:hidden}.bar-f{height:100%;border-radius:50px;transition:width .5s}.bar-v{font-size:12px;font-weight:500;width:30px;text-align:right;flex-shrink:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.ff{display:flex;flex-direction:column;gap:4px}.ff.full{grid-column:1/-1}
+.fl{font-size:12px;font-weight:500;color:var(--g600)}.req{color:var(--r);margin-left:2px}
+.fi{padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-size:13px;color:var(--g900);background:var(--w);outline:none;transition:border-color .15s;width:100%}
+.fi:focus{border-color:var(--p)}textarea.fi{resize:vertical;min-height:80px}.fi:disabled{background:var(--g50);color:var(--g400)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--w);border-radius:14px;padding:24px;width:580px;max-width:92vw;max-height:88vh;overflow-y:auto;position:relative}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}.modal-close{position:absolute;top:16px;right:16px;color:var(--g400);font-size:20px;cursor:pointer}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--g100)}
+.alert{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:9px;border:1px solid;margin-bottom:9px}
+.alert i{font-size:16px;flex-shrink:0;margin-top:1px}.alert-t{font-size:12px;font-weight:500}.alert-s{font-size:11px;opacity:.75;margin-top:1px}
+.al-r{background:var(--rl);border-color:#FBBBBB;color:#7F1D1D}.al-a{background:var(--al);border-color:#F5CC80;color:#633806}
+.al-g{background:var(--tl);border-color:#9FDEC8;color:#085041}.al-p{background:var(--pl);border-color:#C4B5F5;color:#3B1FA8}
+.fr{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fs{padding:6px 11px;border:1px solid var(--g200);border-radius:8px;font-size:13px;color:var(--g900);background:var(--w);outline:none}
+.crs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.cc{background:var(--w);border:1px solid var(--g100);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s}.cc:hover{border-color:var(--p)}
+.cc-thumb{height:80px;display:flex;align-items:center;justify-content:center}.cc-thumb i{font-size:36px;color:#fff}
+.cc-body{padding:12px}.cc-title{font-size:13px;font-weight:600;margin-bottom:3px}.cc-meta{font-size:11px;color:var(--g400);margin-bottom:8px}
+.qb-item{background:var(--g50);border:1px solid var(--g100);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.log-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--g100)}.log-item:last-child{border-bottom:none}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}.ltxt{font-size:12px;font-weight:500}.lmeta{font-size:11px;color:var(--g400);margin-top:2px}
+.pg-tabs{display:flex;border-bottom:1px solid var(--g200);margin-bottom:14px}
+.ptab{padding:9px 16px;font-size:13px;cursor:pointer;color:var(--g400);border-bottom:2px solid transparent;background:none;font-weight:500;transition:all .15s}
+.ptab.active{color:var(--p);border-bottom-color:var(--p)}.ptab-p{display:none}.ptab-p.active{display:block}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.role-card{background:var(--w);border:1px solid var(--g100);border-radius:12px;padding:14px}
+.role-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.role-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.role-ic i{font-size:19px;color:#fff}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-top:1px solid var(--g100);font-size:12px;color:var(--g600)}
+.pc{font-size:10px;font-weight:500;padding:2px 8px;border-radius:50px}
+.pc-f{background:var(--pl);color:var(--p)}.pc-r{background:var(--tl);color:var(--t)}.pc-d{background:var(--al);color:var(--a)}.pc-n{background:var(--g100);color:var(--g600)}
+</style>
+</head>
+<body>
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo-wrap">
+      <div class="login-logo-ic"><i class="ti ti-school"></i></div>
+      <div><div class="login-title">SML Learn</div></div>
+    </div>
+    <div class="login-sub">Admin Portal · สยามกลการโลจิสติกส์</div>
+    <div class="login-lbl">รหัส Admin</div>
+    <input class="login-inp" id="adm-id" placeholder="เช่น ADMIN-001" autocomplete="username">
+    <div class="login-lbl">รหัสผ่าน</div>
+    <input class="login-inp" id="adm-pass" type="password" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="login-btn" onclick="doAdminLogin()"><i class="ti ti-login" style="font-size:18px"></i>เข้าสู่ระบบ Admin</button>
+    <div class="login-err" id="adm-err">รหัส Admin หรือรหัสผ่านไม่ถูกต้อง</div>
+    <div class="login-hint">ติดต่อ Super Admin เพื่อรับรหัสผ่าน</div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--g100)">
+      <div style="font-size:11px;color:var(--g400);margin-bottom:8px">Demo Accounts:</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--g50);padding:6px 10px;border-radius:7px">
+          <span><strong>ADMIN-001</strong> / <code style="background:var(--g100);padding:1px 6px;border-radius:4px">admin2569</code></span>
+          <span class="badge b-sa" style="font-size:10px">Super Admin</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--g50);padding:6px 10px;border-radius:7px">
+          <span><strong>ADMIN-002</strong> / <code style="background:var(--g100);padding:1px 6px;border-radius:4px">hr2569</code></span>
+          <span class="badge b-hr" style="font-size:10px">HR Admin</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--g50);padding:6px 10px;border-radius:7px">
+          <span><strong>ADMIN-003</strong> / <code style="background:var(--g100);padding:1px 6px;border-radius:4px">dept001</code></span>
+          <span class="badge b-da" style="font-size:10px">Dept Admin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-logo"><div class="sb-li"><i class="ti ti-school"></i></div><div><div class="sb-lt">SML Learn</div><div class="sb-ls">Admin Portal</div></div></div>
+  <div class="sb-div"></div>
+  <div class="sb-sec">OVERVIEW</div>
+  <div class="sbn active" id="nav-dashboard" onclick="go('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+  <div class="sbn" id="nav-employees" onclick="go('employees')"><i class="ti ti-users"></i>พนักงาน</div>
+  <div class="sbn" id="nav-roles" onclick="go('roles')"><i class="ti ti-shield-check"></i>Role & Permission</div>
+  <div class="sbn" id="nav-logs" onclick="go('logs')"><i class="ti ti-list-details"></i>Activity Log</div>
+  <div class="sb-sec">หลักสูตร</div>
+  <div class="sbn" id="nav-courses" onclick="go('courses')"><i class="ti ti-book-2"></i>จัดการหลักสูตร</div>
+  <div class="sbn" id="nav-media" onclick="go('media')"><i class="ti ti-photo-video"></i>สื่อการสอน</div>
+  <div class="sbn" id="nav-quiz" onclick="go('quiz')"><i class="ti ti-help-circle"></i>Quiz Bank</div>
+  <div class="sb-sec">ข้อมูล</div>
+  <div class="sbn" id="nav-records" onclick="go('records')"><i class="ti ti-table"></i>บันทึกอบรม</div>
+  <div class="sbn" id="nav-export" onclick="go('export')"><i class="ti ti-download"></i>Export</div>
+  <div class="sbn" id="nav-admins" onclick="go('admins')"><i class="ti ti-shield-half"></i>จัดการ Admin</div>
+  <div class="sbn" id="nav-settings" onclick="go('settings')"><i class="ti ti-settings"></i>ตั้งค่า</div>
+  <div class="sb-foot">
+    <div class="sb-user"><div class="sb-av2" id="sb-av">HR</div><div><div class="sb-un" id="sb-un">ดอลลาดา ม.</div><div class="sb-ur" id="sb-ur">HR Admin</div></div></div>
+    <select id="view-as" onchange="changeRole()" style="width:100%;padding:4px 8px;border:1px solid rgba(255,255,255,.15);border-radius:6px;font-size:11px;color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);outline:none;margin-bottom:8px">
+      <option value="sa">Super Admin</option><option value="hr" selected>HR Admin</option><option value="da">Dept Admin</option><option value="vw">Viewer</option>
+    </select>
+    <button onclick="doAdminLogout()" style="width:100%;padding:7px;background:rgba(217,64,64,.15);border:1px solid rgba(217,64,64,.3);border-radius:7px;color:#F07070;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <i class="ti ti-logout" style="font-size:15px"></i>ออกจากระบบ
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="mn">
+  <div class="tb">
+    <div class="tb-title" id="tb-title">แอปการฝึกอบรมพนักงาน</div>
+    <div class="tab-row" id="tab-row">
+      <button class="tab-btn active" onclick="setTab(this,'dashboard')">Dashboard</button>
+      <button class="tab-btn" onclick="setTab(this,'employees')">พนักงาน</button>
+      <button class="tab-btn" onclick="setTab(this,'roles')">Role & Permission</button>
+      <button class="tab-btn" onclick="setTab(this,'logs')">Activity Log</button>
+    </div>
+    <div class="tb-gap"></div>
+    <div class="tb-srch"><i class="ti ti-search"></i><input placeholder="ค้นหา..." id="srch" oninput="onSearch()"></div>
+    <div class="sync-chip"><div class="sdot sd-ok" id="sdot"></div><span id="sync-txt">Demo Data</span></div>
+    <button class="btn btn-o btn-sm" onclick="loadData()"><i class="ti ti-refresh"></i>Sync</button>
+  </div>
+
+  <div class="ct2">
+
+    <!-- DASHBOARD -->
+    <div class="pg active" id="p-dashboard">
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">พนักงานทั้งหมด</div><div class="kpi-v" id="k-emp">—</div><div class="kpi-s" id="k-emps">—</div></div>
+        <div class="kpi"><div class="kpi-l">หลักสูตร Active</div><div class="kpi-v" style="color:var(--p)" id="k-crs">—</div><div class="kpi-s">หลักสูตร</div></div>
+        <div class="kpi"><div class="kpi-l">อัตราผ่าน Quiz</div><div class="kpi-v" style="color:var(--t)" id="k-pass">—</div><div class="kpi-s" id="k-passs">—</div></div>
+        <div class="kpi"><div class="kpi-l">Sync ล่าสุด</div><div class="kpi-v" style="font-size:14px;color:var(--a)" id="k-sync">Demo</div><div class="kpi-s">Google Sheets</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card"><div class="ct">ความก้าวหน้าแยกแผนก</div><div id="dept-chart"></div></div>
+        <div class="card"><div class="ct">การแจ้งเตือน</div>
+          <div class="alert al-r"><i class="ti ti-alert-circle"></i><div><div class="alert-t">7 คน เกินกำหนดอบรม Safety</div><div class="alert-s">ต้องเสร็จ 31 พ.ค. 2569</div></div></div>
+          <div class="alert al-a"><i class="ti ti-clock"></i><div><div class="alert-t">15 คน OJT ยังไม่ครบ</div><div class="alert-s">กำหนด 30 มิ.ย. 2569</div></div></div>
+          <div class="alert al-g"><i class="ti ti-check"></i><div><div class="alert-t">ปฐมนิเทศ มิ.ย. 2569 สำเร็จ</div><div class="alert-s">3 คนผ่านครบ</div></div></div>
+        </div>
+      </div>
+      <div class="card"><div class="ct">กิจกรรมล่าสุด <button class="btn btn-o btn-sm" onclick="go('logs')"><i class="ti ti-external-link"></i>ดูทั้งหมด</button></div><div id="recent-list"></div></div>
+    </div>
+
+    <!-- EMPLOYEES -->
+    <div class="pg" id="p-employees">
+      <div class="fr">
+        <select class="fs" id="f-dept" onchange="renderEmp()"><option value="">ทุกแผนก</option></select>
+        <select class="fs" id="f-role" onchange="renderEmp()"><option value="">ทุก Role</option><option>พนักงาน</option><option>หัวหน้าแผนก</option><option>HR Admin</option></select>
+        <span style="font-size:12px;color:var(--g400);margin-left:auto" id="emp-count">—</span>
+        <button class="btn btn-p btn-sm" onclick="openAddEmp()"><i class="ti ti-plus"></i>เพิ่มพนักงาน</button>
+      </div>
+      <div class="card"><div class="tw"><table class="tbl">
+        <thead><tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>แผนก</th><th>ตำแหน่ง</th><th>Role</th><th>รหัสผ่าน App</th><th>สถานะ</th><th>Quiz%</th><th>เข้าใช้ล่าสุด</th><th>จัดการ</th></tr></thead>
+        <tbody id="emp-body"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ROLES -->
+    <div class="pg" id="p-roles">
+      <div class="role-grid">
+        <div class="role-card" style="border:2px solid var(--p)">
+          <div class="role-hdr"><div class="role-ic" style="background:var(--p)"><i class="ti ti-crown"></i></div><div><div style="font-size:13px;font-weight:600">Super Admin</div><div style="font-size:11px;color:var(--g400)">เข้าถึงทุกฟีเจอร์</div></div></div>
+          <div class="prow"><span>จัดการพนักงาน</span><span class="pc pc-f">เต็มสิทธิ์</span></div><div class="prow"><span>หลักสูตร+สื่อ+Quiz</span><span class="pc pc-f">เต็มสิทธิ์</span></div>
+          <div class="prow"><span>รายงาน</span><span class="pc pc-f">เต็มสิทธิ์</span></div><div class="prow"><span>จัดการ Role</span><span class="pc pc-f">เต็มสิทธิ์</span></div><div class="prow"><span>Export</span><span class="pc pc-f">ทั้งหมด</span></div>
+        </div>
+        <div class="role-card">
+          <div class="role-hdr"><div class="role-ic" style="background:var(--t)"><i class="ti ti-users"></i></div><div><div style="font-size:13px;font-weight:600">HR Admin</div><div style="font-size:11px;color:var(--g400)">จัดการพนักงานและหลักสูตร</div></div></div>
+          <div class="prow"><span>จัดการพนักงาน</span><span class="pc pc-f">เต็มสิทธิ์</span></div><div class="prow"><span>หลักสูตร+สื่อ+Quiz</span><span class="pc pc-f">เต็มสิทธิ์</span></div>
+          <div class="prow"><span>รายงาน</span><span class="pc pc-r">อ่านอย่างเดียว</span></div><div class="prow"><span>จัดการ Role</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div><div class="prow"><span>Export</span><span class="pc pc-f">ทั้งหมด</span></div>
+        </div>
+        <div class="role-card">
+          <div class="role-hdr"><div class="role-ic" style="background:var(--a)"><i class="ti ti-building"></i></div><div><div style="font-size:13px;font-weight:600">Dept Admin</div><div style="font-size:11px;color:var(--g400)">เฉพาะแผนกตัวเอง</div></div></div>
+          <div class="prow"><span>จัดการพนักงาน</span><span class="pc pc-d">เฉพาะแผนก</span></div><div class="prow"><span>หลักสูตร+สื่อ</span><span class="pc pc-r">อ่านอย่างเดียว</span></div>
+          <div class="prow"><span>รายงาน</span><span class="pc pc-d">เฉพาะแผนก</span></div><div class="prow"><span>จัดการ Role</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div><div class="prow"><span>Export</span><span class="pc pc-d">เฉพาะแผนก</span></div>
+        </div>
+        <div class="role-card">
+          <div class="role-hdr"><div class="role-ic" style="background:var(--g400)"><i class="ti ti-eye"></i></div><div><div style="font-size:13px;font-weight:600">Viewer</div><div style="font-size:11px;color:var(--g400)">ดูรายงานอย่างเดียว</div></div></div>
+          <div class="prow"><span>จัดการพนักงาน</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div><div class="prow"><span>หลักสูตร+สื่อ</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div>
+          <div class="prow"><span>รายงาน</span><span class="pc pc-r">อ่านอย่างเดียว</span></div><div class="prow"><span>จัดการ Role</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div><div class="prow"><span>Export</span><span class="pc pc-n">ไม่มีสิทธิ์</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">ผู้ดูแลระบบ <button class="btn btn-p btn-sm" onclick="openAddEmp()"><i class="ti ti-plus"></i>เพิ่ม Admin</button></div>
+        <table class="tbl"><thead><tr><th>ชื่อ</th><th>Role</th><th>แผนก</th><th>เข้าใช้ล่าสุด</th><th>จัดการ</th></tr></thead>
+        <tbody id="admin-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="pg" id="p-logs">
+      <div class="card"><div class="ct">Activity Log <button class="btn btn-o btn-sm" onclick="exportCSV('all')"><i class="ti ti-download"></i>Export</button></div><div id="log-list"></div></div>
+    </div>
+
+    <!-- COURSES -->
+    <div class="pg" id="p-courses">
+      <div class="pg-tabs">
+        <button class="ptab active" onclick="ptab(this,'crs-list')">รายการหลักสูตร</button>
+        <button class="ptab" onclick="ptab(this,'crs-create')">+ สร้างหลักสูตรใหม่</button>
+      </div>
+      <div class="ptab-p active" id="crs-list">
+        <div class="fr"><select class="fs"><option>ทุกประเภท</option><option>ปฐมนิเทศ</option><option>OJT</option><option>Safety</option><option>ISO</option></select>
+          <button class="btn btn-p btn-sm" style="margin-left:auto" onclick="ptab(document.querySelectorAll('.ptab')[1],'crs-create')"><i class="ti ti-plus"></i>สร้างหลักสูตร</button></div>
+        <div class="crs-grid" id="course-grid"></div>
+      </div>
+      <div class="ptab-p" id="crs-create">
+        <div class="card">
+          <div class="ct">สร้างหลักสูตรใหม่</div>
+          <div class="form-grid">
+            <div class="ff"><label class="fl">ชื่อหลักสูตร<span class="req">*</span></label><input class="fi" id="nc-title" placeholder="ชื่อหลักสูตร"></div>
+            <div class="ff"><label class="fl">ประเภท</label><select class="fi" id="nc-type"><option>ปฐมนิเทศ</option><option>OJT</option><option>อบรมประจำปี</option><option>Safety</option><option>ISO</option></select></div>
+            <div class="ff"><label class="fl">ระยะเวลา (ชม.)</label><input class="fi" id="nc-hours" type="number" value="2"></div>
+            <div class="ff"><label class="fl">เกณฑ์ผ่าน (%)</label><input class="fi" id="nc-pass" type="number" value="80"></div>
+            <div class="ff"><label class="fl">แผนกที่บังคับเรียน</label><select class="fi" id="nc-dept"><option>ทุกแผนก</option><option>ปฏิบัติการ PDI</option><option>Transportation</option><option>Yard Management</option><option>HR & GA</option><option>Safety</option></select></div>
+            <div class="ff"><label class="fl">กำหนดเสร็จ</label><input class="fi" id="nc-deadline" type="date"></div>
+            <div class="ff full"><label class="fl">คำอธิบาย</label><textarea class="fi" id="nc-desc"></textarea></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--g100)">
+            <button class="btn btn-o" onclick="ptab(document.querySelectorAll('.ptab')[0],'crs-list')">ยกเลิก</button>
+            <button class="btn btn-p" onclick="saveCourse()"><i class="ti ti-check"></i>บันทึกหลักสูตร</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDIA -->
+    <div class="pg" id="p-media">
+      <div class="fr">
+        <select class="fs" id="f-mtype"><option value="">ทุกประเภท</option><option>PDF</option><option>วิดีโอ</option><option>สไลด์</option><option>Link</option></select>
+        <button class="btn btn-p btn-sm" style="margin-left:auto" onclick="openModal('add-media')"><i class="ti ti-upload"></i>อัปโหลดสื่อ</button>
+      </div>
+      <div class="card"><div class="tw"><table class="tbl">
+        <thead><tr><th>ชื่อสื่อ</th><th>ประเภท</th><th>หลักสูตร</th><th>ขนาด</th><th>อัปโหลดโดย</th><th>วันที่</th><th>จัดการ</th></tr></thead>
+        <tbody id="media-body"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="pg" id="p-quiz">
+      <div class="fr">
+        <select class="fs" id="f-qcrs" onchange="renderQuizBank()"><option value="">ทุกหลักสูตร</option></select>
+        <span style="font-size:12px;color:var(--g400);margin-left:auto" id="quiz-count">—</span>
+        <button class="btn btn-p btn-sm" onclick="openModal('add-quiz')"><i class="ti ti-plus"></i>เพิ่มข้อสอบ</button>
+      </div>
+      <div id="quiz-list"></div>
+    </div>
+
+    <!-- RECORDS -->
+    <div class="pg" id="p-records">
+      <div class="fr">
+        <select class="fs" id="rf-dept" onchange="renderRecords()"><option value="">ทุกแผนก</option></select>
+        <select class="fs" id="rf-type" onchange="renderRecords()"><option value="">ทุกประเภท</option><option>Quiz</option><option>Content</option></select>
+        <select class="fs" id="rf-pass" onchange="renderRecords()"><option value="">ทั้งหมด</option><option value="ผ่าน">ผ่าน</option><option value="ไม่ผ่าน">ไม่ผ่าน</option></select>
+        <span style="font-size:12px;color:var(--g400);margin-left:auto" id="rec-count">—</span>
+      </div>
+      <div class="card"><div class="tw"><table class="tbl">
+        <thead><tr><th>วันที่</th><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>หลักสูตร</th><th>Module</th><th>ประเภท</th><th>คะแนน</th><th>สถานะ</th></tr></thead>
+        <tbody id="rec-body"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="pg" id="p-export">
+      <div class="three-col">
+        <div class="card" style="text-align:center;cursor:pointer" onclick="exportCSV('all')"><i class="ti ti-file-spreadsheet" style="font-size:36px;color:var(--t);display:block;margin-bottom:10px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">Export ทั้งหมด (CSV)</div></div>
+        <div class="card" style="text-align:center;cursor:pointer" onclick="exportCSV('emp')"><i class="ti ti-users" style="font-size:36px;color:var(--p);display:block;margin-bottom:10px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">Export พนักงาน+รหัสผ่าน</div></div>
+        <div class="card" style="text-align:center;cursor:pointer" onclick="exportCSV('quiz')"><i class="ti ti-help-circle" style="font-size:36px;color:var(--a);display:block;margin-bottom:10px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">Export ผล Quiz</div></div>
+      </div>
+    </div>
+
+    <!-- ADMINS -->
+    <div class="pg" id="p-admins">
+      <div class="fr">
+        <span style="font-size:12px;color:var(--g400)" id="adm-count">—</span>
+        <button class="btn btn-p btn-sm" style="margin-left:auto" onclick="openModal('add-admin')"><i class="ti ti-plus"></i>เพิ่ม Admin</button>
+      </div>
+      <div class="card"><div class="tw"><table class="tbl">
+        <thead><tr><th>รหัส Admin</th><th>ชื่อ</th><th>Role</th><th>แผนก</th><th>รหัสผ่าน</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+        <tbody id="admin-list-body"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="p-settings">
+      <div class="two-col">
+        <div class="card">
+          <div class="ct">Google Apps Script URL</div>
+          <div style="font-size:12px;color:var(--g400);margin-bottom:10px">ใส่ URL หลัง Deploy Web App จาก script.google.com เพื่อ sync ข้อมูลกับ Employee App</div>
+          <input type="text" id="gas-inp" class="fi" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:12px">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-p" onclick="saveGas()"><i class="ti ti-check"></i>บันทึกและ Sync</button>
+            <button class="btn btn-o" onclick="clearGas()"><i class="ti ti-refresh"></i>ใช้ Demo</button>
+          </div>
+          <div id="gas-result" style="margin-top:10px;font-size:12px;color:var(--g400)"></div>
+        </div>
+        <div class="card">
+          <div class="ct">สถานะการเชื่อมต่อ</div>
+          <table class="tbl"><tbody>
+            <tr><td style="color:var(--g400);width:40%">สถานะ</td><td id="s-status"><span class="badge b-todo">Demo Mode</span></td></tr>
+            <tr><td style="color:var(--g400)">รายการทั้งหมด</td><td id="s-total">—</td></tr>
+            <tr><td style="color:var(--g400)">Sync ล่าสุด</td><td id="s-sync">—</td></tr>
+            <tr><td style="color:var(--g400)">GAS URL</td><td id="s-url" style="font-size:11px;word-break:break-all;color:var(--g400)">ยังไม่ได้ตั้งค่า</td></tr>
+          </tbody></table>
+          <div style="margin-top:12px;font-size:12px;font-weight:500;color:var(--g600)">Link Employee App</div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input class="fi" id="app-url" value="https://[username].github.io/sml-learn/" style="flex:1;font-size:12px">
+            <button class="btn btn-o btn-sm" onclick="copyUrl()"><i class="ti ti-copy"></i>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- end main-app -->
+
+<!-- MODAL: Add Admin -->
+<div class="modal-bg" id="modal-add-admin">
+  <div class="modal">
+    <div class="modal-title" id="adm-modal-title">เพิ่ม Admin ใหม่</div>
+    <button class="modal-close" onclick="closeModal('add-admin')"><i class="ti ti-x"></i></button>
+    <input type="hidden" id="adm-editing-id" value="">
+    <div class="form-grid">
+      <div class="ff"><label class="fl">รหัส Admin<span class="req">*</span></label><input class="fi" id="a-id" placeholder="ADMIN-006"></div>
+      <div class="ff"><label class="fl">ชื่อ-นามสกุล<span class="req">*</span></label><input class="fi" id="a-name" placeholder="ชื่อ นามสกุล"></div>
+      <div class="ff"><label class="fl">Role<span class="req">*</span></label>
+        <select class="fi" id="a-role">
+          <option value="Super Admin">Super Admin</option>
+          <option value="HR Admin" selected>HR Admin</option>
+          <option value="Dept Admin">Dept Admin</option>
+          <option value="Viewer">Viewer</option>
+        </select>
+      </div>
+      <div class="ff"><label class="fl">แผนกที่ดูแล</label>
+        <select class="fi" id="a-dept">
+          <option>ทุกแผนก</option><option>ปฏิบัติการ PDI</option><option>Transportation</option><option>Yard Management</option><option>HR & GA</option><option>Safety</option>
+        </select>
+      </div>
+      <div class="ff"><label class="fl">รหัสผ่าน<span class="req">*</span></label><input class="fi" id="a-pass" placeholder="กำหนดรหัสผ่าน"></div>
+      <div class="ff"><label class="fl">สถานะ</label>
+        <select class="fi" id="a-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      </div>
+    </div>
+    <div class="alert al-p"><i class="ti ti-info-circle"></i><div><div class="alert-t">Admin ใช้รหัสนี้ Login เข้า Admin Portal</div><div class="alert-s">บันทึกใน localStorage และ sync ไป Google Sheets Sheet "Admins"</div></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('add-admin')">ยกเลิก</button>
+      <button class="btn btn-p" id="adm-save-btn" onclick="saveAdmin()"><i class="ti ti-check"></i>บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Edit Employee -->
+<div class="modal-bg" id="modal-add-emp">
+  <div class="modal">
+    <div class="modal-title" id="emp-modal-title">เพิ่มพนักงานใหม่</div>
+    <button class="modal-close" onclick="closeModal('add-emp')"><i class="ti ti-x"></i></button>
+    <input type="hidden" id="e-editing-id" value="">
+    <div class="form-grid">
+      <div class="ff"><label class="fl">รหัสพนักงาน<span class="req">*</span></label><input class="fi" id="e-id" placeholder="SML-011"></div>
+      <div class="ff"><label class="fl">ชื่อ-นามสกุล<span class="req">*</span></label><input class="fi" id="e-name" placeholder="ชื่อ นามสกุล"></div>
+      <div class="ff"><label class="fl">แผนก<span class="req">*</span></label><select class="fi" id="e-dept"><option>ปฏิบัติการ PDI</option><option>Transportation</option><option>Yard Management</option><option>HR & GA</option><option>Safety</option></select></div>
+      <div class="ff"><label class="fl">ตำแหน่ง</label><input class="fi" id="e-pos" placeholder="เช่น พนักงาน, หัวหน้า"></div>
+      <div class="ff"><label class="fl">Role</label><select class="fi" id="e-role"><option value="พนักงาน">พนักงาน</option><option value="หัวหน้าแผนก">หัวหน้าแผนก</option><option value="HR Admin">HR Admin</option><option value="Viewer">Viewer</option></select></div>
+      <div class="ff"><label class="fl">รหัสผ่าน App<span class="req">*</span></label><input class="fi" id="e-pass" placeholder="กำหนดรหัสผ่าน"></div>
+      <div class="ff"><label class="fl">วันที่เริ่มงาน</label><input class="fi" id="e-start" type="date"></div>
+      <div class="ff"><label class="fl">อีเมล</label><input class="fi" id="e-email" placeholder="email@sml.co.th"></div>
+      <div class="ff full"><label class="fl">สถานะ</label><select class="fi" id="e-status"><option value="active">Active — ใช้งานได้</option><option value="inactive">Inactive — ระงับการใช้งาน</option></select></div>
+    </div>
+    <div class="alert al-p"><i class="ti ti-info-circle"></i><div><div class="alert-t">รหัสผ่านนี้พนักงานใช้ Login ใน Employee App</div><div class="alert-s">บันทึกใน localStorage และ sync ไป Google Sheets อัตโนมัติ</div></div></div>
+    <div id="emp-sync-status" style="display:none;margin-bottom:10px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('add-emp')">ยกเลิก</button>
+      <button class="btn btn-p" id="emp-save-btn" onclick="saveEmployee()"><i class="ti ti-check"></i>บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: View Employee -->
+<div class="modal-bg" id="modal-view-emp">
+  <div class="modal">
+    <div class="modal-title">ข้อมูลพนักงาน</div>
+    <button class="modal-close" onclick="closeModal('view-emp')"><i class="ti ti-x"></i></button>
+    <div id="view-emp-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('view-emp')">ปิด</button>
+      <button class="btn btn-p" id="view-emp-edit-btn"><i class="ti ti-edit"></i>แก้ไขข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Media -->
+<div class="modal-bg" id="modal-add-media">
+  <div class="modal">
+    <div class="modal-title">อัปโหลดสื่อการสอน</div>
+    <button class="modal-close" onclick="closeModal('add-media')"><i class="ti ti-x"></i></button>
+    <div class="form-grid">
+      <div class="ff"><label class="fl">ชื่อสื่อ<span class="req">*</span></label><input class="fi" id="m-name" placeholder="ชื่อสื่อ"></div>
+      <div class="ff"><label class="fl">ประเภท</label><select class="fi" id="m-type"><option>PDF</option><option>วิดีโอ</option><option>สไลด์</option><option>Link</option></select></div>
+      <div class="ff"><label class="fl">หลักสูตร</label><select class="fi" id="m-crs"></select></div>
+      <div class="ff"><label class="fl">ลำดับ Module</label><input class="fi" id="m-order" type="number" value="1"></div>
+      <div class="ff full"><label class="fl">URL / Link<span class="req">*</span></label><input class="fi" id="m-url" placeholder="https://... หรือ Google Drive Link"></div>
+      <div class="ff full"><label class="fl">คำอธิบาย</label><textarea class="fi" id="m-desc"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('add-media')">ยกเลิก</button>
+      <button class="btn btn-p" onclick="saveMedia()"><i class="ti ti-check"></i>บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Quiz -->
+<div class="modal-bg" id="modal-add-quiz">
+  <div class="modal">
+    <div class="modal-title">เพิ่มข้อสอบ</div>
+    <button class="modal-close" onclick="closeModal('add-quiz')"><i class="ti ti-x"></i></button>
+    <div class="form-grid">
+      <div class="ff full"><label class="fl">คำถาม<span class="req">*</span></label><textarea class="fi" id="q-txt" placeholder="พิมพ์คำถาม..."></textarea></div>
+      <div class="ff"><label class="fl">หลักสูตร</label><select class="fi" id="q-crs"></select></div>
+      <div class="ff"><label class="fl">Module</label><input class="fi" id="q-mod" placeholder="ชื่อ Module"></div>
+    </div>
+    <div style="font-size:12px;font-weight:500;color:var(--g600);margin-bottom:8px">ตัวเลือก — เลือกข้อที่ถูกต้อง</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="qans" value="0" id="qa0" checked style="accent-color:var(--t);flex-shrink:0"><label for="qa0" style="font-size:12px;color:var(--g600);width:50px;flex-shrink:0">A ✓ถูก</label><input class="fi" id="qo0" placeholder="ตัวเลือก A"></div>
+      <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="qans" value="1" id="qa1" style="accent-color:var(--t);flex-shrink:0"><label for="qa1" style="font-size:12px;color:var(--g600);width:50px;flex-shrink:0">B</label><input class="fi" id="qo1" placeholder="ตัวเลือก B"></div>
+      <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="qans" value="2" id="qa2" style="accent-color:var(--t);flex-shrink:0"><label for="qa2" style="font-size:12px;color:var(--g600);width:50px;flex-shrink:0">C</label><input class="fi" id="qo2" placeholder="ตัวเลือก C"></div>
+      <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="qans" value="3" id="qa3" style="accent-color:var(--t);flex-shrink:0"><label for="qa3" style="font-size:12px;color:var(--g600);width:50px;flex-shrink:0">D</label><input class="fi" id="qo3" placeholder="ตัวเลือก D"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('add-quiz')">ยกเลิก</button>
+      <button class="btn btn-p" onclick="saveQuiz()"><i class="ti ti-check"></i>บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+var DEMO_RECORDS=[
+  {ts:'2026-06-07T09:45',id:'SML-001',name:'สมชาย ใจดี',dept:'ปฏิบัติการ PDI',cid:'OJT-PDI-001',mod:'แบบทดสอบ OJT PDI',type:'Quiz',score:'88',pass:'ผ่าน'},
+  {ts:'2026-06-07T09:30',id:'SML-001',name:'สมชาย ใจดี',dept:'ปฏิบัติการ PDI',cid:'OJT-PDI-001',mod:'ขั้นตอนการตรวจรับรถ',type:'Content',score:'',pass:'ผ่าน'},
+  {ts:'2026-06-06T10:30',id:'SML-002',name:'สวรรยา พงษ์ดี',dept:'Transportation',cid:'ISO-001',mod:'แบบทดสอบ ISO',type:'Quiz',score:'100',pass:'ผ่าน'},
+  {ts:'2026-06-05T15:00',id:'SML-003',name:'ธนพล รัตนชัย',dept:'ปฏิบัติการ PDI',cid:'ORI-001',mod:'แบบทดสอบปฐมนิเทศ',type:'Quiz',score:'80',pass:'ผ่าน'},
+  {ts:'2026-06-05T14:30',id:'SML-003',name:'ธนพล รัตนชัย',dept:'ปฏิบัติการ PDI',cid:'ORI-001',mod:'แบบทดสอบปฐมนิเทศ',type:'Quiz',score:'60',pass:'ไม่ผ่าน'},
+  {ts:'2026-06-04T09:30',id:'SML-004',name:'มณีรัตน์ สมบูรณ์',dept:'Yard Management',cid:'ISO-001',mod:'แบบทดสอบ ISO',type:'Quiz',score:'95',pass:'ผ่าน'},
+  {ts:'2026-06-03T11:30',id:'SML-005',name:'วิชัย สุขใจ',dept:'HR & GA',cid:'ORI-001',mod:'แบบทดสอบปฐมนิเทศ',type:'Quiz',score:'90',pass:'ผ่าน'},
+  {ts:'2026-06-02T10:00',id:'SML-006',name:'กมลา ใจงาม',dept:'Safety',cid:'ISO-001',mod:'แบบทดสอบ ISO',type:'Quiz',score:'85',pass:'ผ่าน'},
+  {ts:'2026-06-01T09:00',id:'SML-007',name:'ประวิทย์ มานะ',dept:'ปฏิบัติการ PDI',cid:'ORI-001',mod:'แบบทดสอบปฐมนิเทศ',type:'Quiz',score:'100',pass:'ผ่าน'},
+  {ts:'2026-05-31T13:00',id:'SML-008',name:'สุภาพร จันทร์ดี',dept:'HR & GA',cid:'OJT-PDI-001',mod:'การบันทึก NC',type:'Content',score:'',pass:'ผ่าน'},
+];
+
+function loadEmpStore(){return JSON.parse(localStorage.getItem('sml_employees')||'null')||[
+  {id:'SML-001',name:'สมชาย ใจดี',dept:'ปฏิบัติการ PDI',pos:'พนักงาน',role:'พนักงาน',pass:'1234',status:'active',lastLogin:'2026-06-07',email:'',startDate:''},
+  {id:'SML-002',name:'สวรรยา พงษ์ดี',dept:'Transportation',pos:'พนักงาน',role:'พนักงาน',pass:'1234',status:'active',lastLogin:'2026-06-06',email:'',startDate:''},
+  {id:'SML-003',name:'ธนพล รัตนชัย',dept:'ปฏิบัติการ PDI',pos:'พนักงาน',role:'พนักงาน',pass:'1234',status:'active',lastLogin:'2026-06-05',email:'',startDate:''},
+  {id:'SML-004',name:'มณีรัตน์ สมบูรณ์',dept:'Yard Management',pos:'พนักงาน',role:'พนักงาน',pass:'1234',status:'active',lastLogin:'2026-06-04',email:'',startDate:''},
+  {id:'SML-005',name:'วิชัย สุขใจ',dept:'HR & GA',pos:'HR Officer',role:'HR Admin',pass:'hr2569',status:'active',lastLogin:'2026-06-03',email:'',startDate:''},
+];}
+
+function loadCrsStore(){return JSON.parse(localStorage.getItem('sml_courses')||'null')||[
+  {id:'ORI-001',title:'ปฐมนิเทศพนักงานใหม่',type:'ปฐมนิเทศ',hours:3,dept:'ทุกแผนก',pass:80,deadline:'',color:'#5C6BC0',icon:'ti-users'},
+  {id:'OJT-PDI-001',title:'OJT: ตรวจรับรถยนต์ PDI',type:'OJT',hours:6,dept:'ปฏิบัติการ PDI',pass:80,deadline:'2026-06-30',color:'#5B3FC8',icon:'ti-tool'},
+  {id:'ISO-001',title:'ISO 9001:2015 พื้นฐาน',type:'ISO',hours:2,dept:'ทุกแผนก',pass:80,deadline:'',color:'#185FA5',icon:'ti-certificate'},
+];}
+
+function loadMediaStore(){return JSON.parse(localStorage.getItem('sml_media')||'null')||[
+  {name:'OJT_PDI_Inspection.pptx',type:'สไลด์',cid:'OJT-PDI-001',url:'#',size:'4.2 MB',by:'ดอลลาดา ม.',date:'2026-06-01',order:1},
+  {name:'Safety_Walkthrough.mp4',type:'วิดีโอ',cid:'OJT-PDI-001',url:'#',size:'128 MB',by:'ยศศักดิ์ ท.',date:'2026-06-02',order:2},
+  {name:'ISO_Basics.pdf',type:'PDF',cid:'ISO-001',url:'#',size:'2.1 MB',by:'ดอลลาดา ม.',date:'2026-05-28',order:1},
+];}
+
+function loadQuizStore(){return JSON.parse(localStorage.getItem('sml_quiz')||'null')||[
+  {cid:'OJT-PDI-001',mod:'แบบทดสอบ OJT PDI',q:'ขั้นตอนแรกของการตรวจรับรถ PDI คืออะไร?',opts:['ตรวจสภาพตัวถัง','ตรวจสอบเอกสารและ VIN','เปิดฝากระโปรง','ทดสอบเบรก'],ans:1},
+  {cid:'OJT-PDI-001',mod:'แบบทดสอบ OJT PDI',q:'NC ย่อมาจากอะไร?',opts:['Normal Check','Non-Conformance','New Car','None Complete'],ans:1},
+  {cid:'ORI-001',mod:'แบบทดสอบปฐมนิเทศ',q:'SML ย่อมาจากอะไร?',opts:['Siam Motor Logistics','Siam Montri Logistics','Siam Motorcar Logistics','Siam Moving Logistics'],ans:0},
+  {cid:'ISO-001',mod:'แบบทดสอบ ISO',q:'ISO 9001:2015 เกี่ยวกับเรื่องใด?',opts:['ความปลอดภัย','ระบบบริหารคุณภาพ','สิ่งแวดล้อม','การเงิน'],ans:1},
+];}
+
+var EMPLOYEES=loadEmpStore(), COURSES=loadCrsStore(), MEDIA=loadMediaStore(), QUIZBANK=loadQuizStore();
+var allRecords=[], gasUrl=localStorage.getItem('sml_hr_gas')||'https://script.google.com/macros/s/AKfycbz30VK54QR7UCnrnf3xFwd7yrGTcnyoGdS6G7XqF_T5c5fEjmZqzlSU0rIX61Dpsb6I/exec';
+var currentAdmin=null;
+
+// Demo Admin Accounts (เก็บใน localStorage ถ้ามี)
+function loadAdminStore(){return JSON.parse(localStorage.getItem('sml_admins')||'null')||[
+  {id:'ADMIN-001',name:'ยศศักดิ์ ท.',role:'Super Admin',dept:'ทุกแผนก',pass:'admin2569',status:'active'},
+  {id:'ADMIN-002',name:'ดอลลาดา ม.',role:'HR Admin',   dept:'ทุกแผนก',pass:'hr2569',   status:'active'},
+  {id:'ADMIN-003',name:'หัวหน้า PDI',role:'Dept Admin', dept:'ปฏิบัติการ PDI',pass:'dept001',status:'active'},
+  {id:'ADMIN-004',name:'นุ่มพล ก.',  role:'HR Admin',   dept:'ทุกแผนก',pass:'hr2569',   status:'active'},
+  {id:'ADMIN-005',name:'เจ้าหน้าที่ Safety',role:'Viewer',dept:'Safety',pass:'view001',status:'active'},
+];}
+var ADMINS=loadAdminStore();
+
+// ═══════════════ ADMIN LOGIN ═══════════════
+function doAdminLogin(){
+  var id=document.getElementById('adm-id').value.trim();
+  var pass=document.getElementById('adm-pass').value;
+  document.getElementById('adm-err').style.display='none';
+
+  // ลอง load จาก GAS ก่อน ถ้ามี
+  var storedGas=localStorage.getItem('sml_hr_gas')||'';
+  if(storedGas){
+    fetch(storedGas+'?type=admins')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(Array.isArray(d)&&d.length){
+          ADMINS=d.map(function(a){return{id:a.AdminID||a.id,name:a.AdminName||a.name,role:a.Role||a.role,dept:a.Department||a.dept,pass:a.Password||a.pass,status:a.Status||a.status||'active'};});
+          localStorage.setItem('sml_admins',JSON.stringify(ADMINS));
+        }
+        checkAdminLogin(id,pass);
+      }).catch(function(){checkAdminLogin(id,pass);});
+  } else {
+    checkAdminLogin(id,pass);
+  }
+}
+
+function checkAdminLogin(id,pass){
+  var admin=ADMINS.find(function(a){return a.id===id&&a.pass===pass&&a.status==='active';});
+  if(!admin){
+    document.getElementById('adm-err').style.display='block';
+    document.getElementById('adm-pass').value='';
+    return;
+  }
+  currentAdmin=admin;
+  localStorage.setItem('sml_current_admin',JSON.stringify(admin));
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-app').style.display='flex';
+  // Update sidebar user info
+  document.getElementById('sb-un').textContent=admin.name;
+  document.getElementById('sb-ur').textContent=admin.role;
+  document.getElementById('sb-av').textContent=admin.name.substring(0,2);
+  // Set role selector
+  var roleMap={'Super Admin':'sa','HR Admin':'hr','Dept Admin':'da','Viewer':'vw'};
+  var sel=document.getElementById('view-as');
+  if(sel)sel.value=roleMap[admin.role]||'hr';
+  // Apply role restrictions
+  applyRoleRestrictions(admin.role);
+  // init data
+  gasUrl=localStorage.getItem('sml_hr_gas')||'';
+  if(gasUrl){document.getElementById('gas-inp').value=gasUrl;loadData();}
+  else{allRecords=DEMO_RECORDS;renderAll();}
+  document.getElementById('s-url').textContent=gasUrl||'ยังไม่ได้ตั้งค่า';
+  populateCrsSelects();
+  showToast('ยินดีต้อนรับ '+admin.name+' ('+admin.role+')','ok');
+}
+
+function doAdminLogout(){
+  currentAdmin=null;
+  localStorage.removeItem('sml_current_admin');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('adm-id').value='';
+  document.getElementById('adm-pass').value='';
+}
+
+function applyRoleRestrictions(role){
+  // ซ่อน/แสดง sidebar items ตาม role
+  var restricted={
+    'Viewer':   ['nav-courses','nav-media','nav-quiz','nav-export'],
+    'Dept Admin':['nav-settings'],
+  };
+  // Reset all visible first
+  document.querySelectorAll('.sbn').forEach(function(n){n.style.display='flex';});
+  if(restricted[role]){
+    restricted[role].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.style.display='none';
+    });
+  }
+  // Viewer ไม่เห็น view-as selector
+  var vaWrap=document.getElementById('view-as');
+  if(vaWrap)vaWrap.style.display=role==='Super Admin'?'block':'none';
+}
+
+// ═══════════════ INIT ═══════════════
+window.onload=function(){
+  // Check saved login session
+  var saved=localStorage.getItem('sml_current_admin');
+  if(saved){
+    try{
+      currentAdmin=JSON.parse(saved);
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('main-app').style.display='flex';
+      document.getElementById('sb-un').textContent=currentAdmin.name;
+      document.getElementById('sb-ur').textContent=currentAdmin.role;
+      document.getElementById('sb-av').textContent=currentAdmin.name.substring(0,2);
+      var roleMap={'Super Admin':'sa','HR Admin':'hr','Dept Admin':'da','Viewer':'vw'};
+      var sel=document.getElementById('view-as');
+      if(sel)sel.value=roleMap[currentAdmin.role]||'hr';
+      applyRoleRestrictions(currentAdmin.role);
+    }catch(e){localStorage.removeItem('sml_current_admin');}
+  }
+  gasUrl=localStorage.getItem('sml_hr_gas')||'';
+  if(gasUrl){document.getElementById('gas-inp').value=gasUrl;loadData();}
+  else{allRecords=DEMO_RECORDS;renderAll();}
+  document.getElementById('s-url').textContent=gasUrl||'ยังไม่ได้ตั้งค่า';
+  populateCrsSelects();
+};
+
+// ═══════════════ LOAD DATA ═══════════════
+function loadData(){
+  if(!gasUrl){allRecords=DEMO_RECORDS;renderAll();setSyncStatus('ok','Demo Data');return;}
+  setSyncStatus('load','กำลัง Sync...');
+  fetch(gasUrl).then(function(r){return r.json();})
+  .then(function(d){
+    if(Array.isArray(d)&&d.length){
+      allRecords=d.map(function(r){return{ts:r.Timestamp||'',id:r.EmployeeID||'',name:r.EmployeeName||'',dept:r.Department||'',cid:r.CourseID||'',mod:r.ModuleName||'',type:r.Type||'',score:r.Score||'',pass:r.PassFail||''};});
+      var t=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('k-sync').textContent=t;
+      document.getElementById('s-sync').textContent=t;
+      document.getElementById('s-status').innerHTML='<span class="badge b-done">✓ Connected</span>';
+      setSyncStatus('ok','✓ Sync สำเร็จ '+t);
+      showToast('✓ Sync สำเร็จ — '+allRecords.length+' รายการ จาก Google Sheets','ok');
+    }else{
+      allRecords=DEMO_RECORDS;
+      setSyncStatus('ok','Sheets ว่าง ใช้ Demo');
+      showToast('⚠ ไม่พบข้อมูลใน Sheets ใช้ Demo Data แทน','warn');
+    }
+    renderAll();
+  })
+  .catch(function(){
+    allRecords=DEMO_RECORDS;renderAll();
+    setSyncStatus('err','✗ เชื่อมต่อไม่ได้');
+    showToast('✗ Sync ไม่สำเร็จ — ตรวจสอบ GAS URL','err');
+  });
+}
+
+function setSyncStatus(s,txt){
+  document.getElementById('sync-txt').textContent=txt;
+  document.getElementById('sdot').className='sdot '+(s==='ok'?'sd-ok':s==='load'?'sd-load':'sd-err');
+}
+
+function saveGas(){
+  gasUrl=document.getElementById('gas-inp').value.trim();
+  localStorage.setItem('sml_hr_gas',gasUrl);
+  document.getElementById('s-url').textContent=gasUrl||'ยังไม่ได้ตั้งค่า';
+  document.getElementById('gas-result').textContent='บันทึกแล้ว กำลัง Sync...';
+  loadData();
+}
+function clearGas(){
+  gasUrl='';localStorage.removeItem('sml_hr_gas');
+  document.getElementById('gas-inp').value='';
+  document.getElementById('gas-result').textContent='ล้างแล้ว ใช้ Demo Data';
+  document.getElementById('s-url').textContent='ยังไม่ได้ตั้งค่า';
+  document.getElementById('s-status').innerHTML='<span class="badge b-todo">Demo Mode</span>';
+  allRecords=DEMO_RECORDS;renderAll();setSyncStatus('ok','Demo Data');
+}
+
+// ═══════════════ RENDER ALL ═══════════════
+function renderAll(){
+  renderDashboard();renderEmp();renderRecords();renderLogs();
+  renderCourseGrid();renderMedia();renderQuizBank();renderAdminTable();
+  populateFilters();
+  document.getElementById('s-total').textContent=allRecords.length+' รายการ';
+}
+
+function renderDashboard(){
+  var empSet=new Set(allRecords.map(function(r){return r.id;}));
+  var quiz=allRecords.filter(function(r){return r.type==='Quiz';});
+  var pass=quiz.filter(function(r){return r.pass==='ผ่าน';});
+  var pct=quiz.length?Math.round(pass.length/quiz.length*100):0;
+  document.getElementById('k-emp').textContent=EMPLOYEES.length;
+  document.getElementById('k-emps').textContent=empSet.size+' คนใช้งานแล้ว';
+  document.getElementById('k-crs').textContent=COURSES.length;
+  document.getElementById('k-pass').textContent=pct+'%';
+  document.getElementById('k-passs').textContent=pass.length+'/'+quiz.length+' ข้อสอบ';
+  var dm={};
+  allRecords.forEach(function(r){if(!dm[r.dept])dm[r.dept]={t:0,p:0};dm[r.dept].t++;if(r.pass==='ผ่าน')dm[r.dept].p++;});
+  var cols=['pf-p','pf-t','pf-a','pf-r','pf-p'];
+  document.getElementById('dept-chart').innerHTML=Object.keys(dm).map(function(d,i){
+    var p=Math.round(dm[d].p/dm[d].t*100);
+    return '<div class="bar-row"><div class="bar-l">'+d+'</div><div class="bar-t"><div class="bar-f '+cols[i%5]+'" style="width:'+p+'%"></div></div><div class="bar-v">'+p+'%</div></div>';
+  }).join('');
+  document.getElementById('recent-list').innerHTML=allRecords.slice().reverse().slice(0,8).map(function(r){
+    var dot=r.pass==='ผ่าน'?'var(--t)':r.pass==='ไม่ผ่าน'?'var(--r)':'var(--p)';
+    var d=new Date(r.ts);var ds=isNaN(d)?r.ts:d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="log-item"><div class="ldot" style="background:'+dot+'"></div><div style="flex:1"><div class="ltxt">'+r.name+' — '+r.mod+'</div><div class="lmeta">'+ds+' · '+r.dept+'</div></div>'+(r.pass?'<span class="badge '+(r.pass==='ผ่าน'?'b-done':'b-late')+'">'+r.pass+'</span>':'')+'</div>';
+  }).join('');
+}
+
+function renderEmp(){
+  var dept=document.getElementById('f-dept').value;
+  var role=document.getElementById('f-role').value;
+  var srch=document.getElementById('srch').value.toLowerCase();
+  var list=EMPLOYEES.filter(function(e){return(!dept||e.dept===dept)&&(!role||e.role===role)&&(!srch||(e.name||'').toLowerCase().includes(srch)||(e.id||'').toLowerCase().includes(srch));});
+  document.getElementById('emp-count').textContent=list.length+' คน';
+  var rb={พนักงาน:'b-todo',หัวหน้าแผนก:'b-da','HR Admin':'b-hr',Viewer:'b-vw'};
+  var html=list.map(function(e){
+    var eq=allRecords.filter(function(r){return r.id===e.id&&r.type==='Quiz';});
+    var ep=eq.filter(function(r){return r.pass==='ผ่าน';});
+    var qp=eq.length?Math.round(ep.length/eq.length*100):0;
+    var col=qp>=80?'pf-t':qp>=50?'pf-a':'pf-r';
+    var sb=e.status==='active'?'<span class="badge b-done">Active</span>':'<span class="badge b-late">Inactive</span>';
+    return '<tr>'+
+      '<td>'+e.id+'</td>'+
+      '<td><strong>'+e.name+'</strong></td>'+
+      '<td>'+e.dept+'</td>'+
+      '<td>'+(e.pos||'พนักงาน')+'</td>'+
+      '<td><span class="badge '+(rb[e.role]||'b-todo')+'">'+(e.role||'พนักงาน')+'</span></td>'+
+      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">'+e.pass+'</code></td>'+
+      '<td>'+sb+'</td>'+
+      '<td><div class="mp"><div class="prog-bar"><div class="prog-fill '+col+'" style="width:'+qp+'%"></div></div><div class="mp-n">'+qp+'%</div></div></td>'+
+      '<td style="font-size:11px;color:var(--g400)">'+(e.lastLogin||'—')+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+        '<button class="btn btn-o btn-sm" onclick="viewEmp(\''+e.id+'\')" title="ดูข้อมูล"><i class="ti ti-eye"></i></button>'+
+        '<button class="btn btn-o btn-sm" onclick="editEmp(\''+e.id+'\')" title="แก้ไข"><i class="ti ti-edit"></i></button>'+
+        '<button class="btn btn-r btn-sm" onclick="deleteEmp(\''+e.id+'\')" title="ลบ"><i class="ti ti-trash"></i></button>'+
+      '</td></tr>';
+  }).join('');
+  document.getElementById('emp-body').innerHTML=html||'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--g400)">ไม่มีข้อมูล</td></tr>';
+}
+
+function renderAdminTable(){
+  var admins=EMPLOYEES.filter(function(e){return e.role==='HR Admin'||e.role==='Viewer'||e.role==='หัวหน้าแผนก';});
+  var rb={'HR Admin':'b-hr','Viewer':'b-vw','หัวหน้าแผนก':'b-da'};
+  var html=admins.map(function(e){
+    return '<tr><td>'+e.name+'</td><td><span class="badge '+(rb[e.role]||'b-todo')+'">'+e.role+'</span></td><td>'+e.dept+'</td><td style="font-size:11px;color:var(--g400)">'+(e.lastLogin||'—')+'</td><td><button class="btn btn-o btn-sm" onclick="editEmp(\''+e.id+'\')"><i class="ti ti-edit"></i>แก้ไข</button></td></tr>';
+  }).join('');
+  document.getElementById('admin-body').innerHTML=html||'<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--g400)">—</td></tr>';
+}
+
+function renderRecords(){
+  var dept=document.getElementById('rf-dept').value;
+  var type=document.getElementById('rf-type').value;
+  var pass=document.getElementById('rf-pass').value;
+  var srch=document.getElementById('srch').value.toLowerCase();
+  var f=allRecords.filter(function(r){return(!dept||r.dept===dept)&&(!type||r.type===type)&&(!pass||r.pass===pass)&&(!srch||(r.name||'').toLowerCase().includes(srch)||(r.id||'').toLowerCase().includes(srch));});
+  document.getElementById('rec-count').textContent=f.length+' รายการ';
+  var html=f.slice().reverse().map(function(r){
+    var d=new Date(r.ts);var ds=isNaN(d)?r.ts:d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return '<tr><td style="font-size:11px;color:var(--g400)">'+ds+'</td><td>'+r.id+'</td><td>'+r.name+'</td><td>'+r.dept+'</td><td style="font-size:12px">'+r.cid+'</td><td style="font-size:12px">'+r.mod+'</td><td><span class="badge '+(r.type==='Quiz'?'b-prog':'b-todo')+'">'+r.type+'</span></td><td>'+(r.score?r.score+'%':'—')+'</td><td>'+(r.pass?'<span class="badge '+(r.pass==='ผ่าน'?'b-done':'b-late')+'">'+r.pass+'</span>':'—')+'</td></tr>';
+  }).join('');
+  document.getElementById('rec-body').innerHTML=html||'<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--g400)">ไม่มีข้อมูล</td></tr>';
+}
+
+function renderLogs(){
+  var html=allRecords.slice().reverse().map(function(r){
+    var dot=r.pass==='ผ่าน'?'var(--t)':r.pass==='ไม่ผ่าน'?'var(--r)':'var(--p)';
+    var d=new Date(r.ts);var ds=isNaN(d)?r.ts:d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="log-item"><div class="ldot" style="background:'+dot+'"></div><div style="flex:1"><div class="ltxt">'+r.id+' '+r.name+' — '+r.type+': '+r.mod+'</div><div class="lmeta">'+ds+' · '+r.dept+' · '+r.cid+'</div></div>'+(r.pass?'<span class="badge '+(r.pass==='ผ่าน'?'b-done':'b-late')+'">'+r.pass+'</span>':'')+'</div>';
+  }).join('');
+  document.getElementById('log-list').innerHTML=html||'<div style="text-align:center;padding:24px;color:var(--g400)">ไม่มีข้อมูล</div>';
+}
+
+function renderCourseGrid(){
+  var html=COURSES.map(function(c){
+    var cnt=allRecords.filter(function(r){return r.cid===c.id;}).length;
+    return '<div class="cc"><div class="cc-thumb" style="background:'+c.color+'"><i class="ti '+c.icon+'"></i></div><div class="cc-body"><div class="cc-title">'+c.title+'</div><div class="cc-meta">'+c.type+' · '+c.hours+' ชม. · '+c.dept+'</div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g400)"><span>'+cnt+' กิจกรรม</span><button class="btn btn-r btn-sm" style="font-size:10px;padding:2px 8px" onclick="deleteCourse(\''+c.id+'\')"><i class="ti ti-trash"></i></button></div></div></div>';
+  }).join('');
+  html+='<div class="cc" onclick="ptab(document.querySelectorAll(\'.ptab\')[1],\'crs-create\')" style="border:1.5px dashed var(--g200);background:var(--g50)"><div class="cc-thumb" style="background:transparent;flex-direction:column;gap:6px"><i class="ti ti-plus" style="font-size:28px;color:var(--g400)"></i><div style="font-size:12px;color:var(--g400)">สร้างหลักสูตรใหม่</div></div><div class="cc-body" style="opacity:0;height:40px"></div></div>';
+  document.getElementById('course-grid').innerHTML=html;
+}
+
+function renderMedia(){
+  var type=document.getElementById('f-mtype').value;
+  var list=MEDIA.filter(function(m){return!type||m.type===type;});
+  var icons={PDF:'ti-file-type-pdf',วิดีโอ:'ti-video',สไลด์:'ti-file-type-ppt',Link:'ti-link'};
+  var colors={PDF:'#D94040',วิดีโอ:'#5B3FC8',สไลด์:'#C87F1A',Link:'#0F9E75'};
+  var html=list.map(function(m,i){
+    return '<tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:6px;background:'+(colors[m.type]||'#888')+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+(icons[m.type]||'ti-file')+'" style="font-size:14px;color:#fff"></i></div><span style="font-size:12px">'+m.name+'</span></div></td><td><span class="badge b-prog">'+m.type+'</span></td><td style="font-size:12px">'+m.cid+'</td><td style="font-size:11px;color:var(--g400)">'+m.size+'</td><td style="font-size:12px">'+m.by+'</td><td style="font-size:11px;color:var(--g400)">'+m.date+'</td><td style="display:flex;gap:4px"><a href="'+m.url+'" target="_blank" class="btn btn-o btn-sm"><i class="ti ti-external-link"></i></a><button class="btn btn-r btn-sm" onclick="deleteMedia('+i+')"><i class="ti ti-trash"></i></button></td></tr>';
+  }).join('');
+  document.getElementById('media-body').innerHTML=html||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--g400)">ไม่มีสื่อ</td></tr>';
+}
+
+function renderQuizBank(){
+  var crs=document.getElementById('f-qcrs').value;
+  var list=QUIZBANK.filter(function(q){return!crs||q.cid===crs;});
+  document.getElementById('quiz-count').textContent=list.length+' ข้อ';
+  var letters=['A','B','C','D'];
+  var html=list.map(function(q,i){
+    var opts=q.opts.map(function(o,j){return'<div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:4px"><span style="width:20px;height:20px;border-radius:50%;background:'+(j===q.ans?'var(--t)':'var(--g100)')+';color:'+(j===q.ans?'#fff':'var(--g600)')+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">'+letters[j]+'</span><span style="'+(j===q.ans?'color:var(--t);font-weight:500':'')+'">' +o+'</span></div>';}).join('');
+    return '<div class="qb-item"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px"><div style="display:flex;gap:8px;align-items:center"><span style="width:22px;height:22px;border-radius:50%;background:var(--a);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</span><span style="font-size:13px;font-weight:500">'+q.q+'</span></div><div style="display:flex;gap:4px;align-items:center;flex-shrink:0"><span style="font-size:10px;color:var(--g400)">'+q.cid+'</span><button class="btn btn-r btn-sm" onclick="deleteQuiz('+i+')" style="padding:2px 7px"><i class="ti ti-trash"></i></button></div></div>'+opts+'</div>';
+  }).join('');
+  document.getElementById('quiz-list').innerHTML=html||'<div class="card" style="text-align:center;padding:24px;color:var(--g400)">ยังไม่มีข้อสอบ</div>';
+}
+
+function populateFilters(){
+  var depts=[...new Set(EMPLOYEES.map(function(e){return e.dept;}).filter(Boolean))];
+  ['f-dept','rf-dept'].forEach(function(id){var s=document.getElementById(id);if(s){s.innerHTML='<option value="">ทุกแผนก</option>'+depts.map(function(d){return'<option>'+d+'</option>';}).join('');}});
+}
+
+function populateCrsSelects(){
+  var opts=COURSES.map(function(c){return'<option value="'+c.id+'">'+c.id+' — '+c.title+'</option>';}).join('');
+  ['m-crs','q-crs','f-qcrs'].forEach(function(id){var s=document.getElementById(id);if(s)s.innerHTML=(id==='f-qcrs'?'<option value="">ทุกหลักสูตร</option>':'')+opts;});
+}
+
+// ═══════════════ EMPLOYEE CRUD ═══════════════
+function openAddEmp(){
+  document.getElementById('emp-modal-title').textContent='เพิ่มพนักงานใหม่';
+  document.getElementById('emp-save-btn').innerHTML='<i class="ti ti-plus"></i>เพิ่มพนักงาน';
+  document.getElementById('e-editing-id').value='';
+  document.getElementById('e-id').value='';
+  document.getElementById('e-id').disabled=false;
+  document.getElementById('e-name').value='';
+  document.getElementById('e-pos').value='';
+  document.getElementById('e-pass').value='';
+  document.getElementById('e-email').value='';
+  document.getElementById('e-start').value='';
+  document.getElementById('e-dept').selectedIndex=0;
+  document.getElementById('e-role').value='พนักงาน';
+  document.getElementById('e-status').value='active';
+  document.getElementById('emp-sync-status').style.display='none';
+  openModal('add-emp');
+}
+
+function editEmp(id){
+  var e=EMPLOYEES.find(function(x){return x.id===id;});
+  if(!e)return;
+  document.getElementById('emp-modal-title').textContent='แก้ไขข้อมูล: '+e.id;
+  document.getElementById('emp-save-btn').innerHTML='<i class="ti ti-check"></i>บันทึกการแก้ไข';
+  document.getElementById('e-editing-id').value=e.id;
+  document.getElementById('e-id').value=e.id;
+  document.getElementById('e-id').disabled=true;
+  document.getElementById('e-name').value=e.name||'';
+  document.getElementById('e-pos').value=e.pos||'';
+  document.getElementById('e-pass').value=e.pass||'';
+  document.getElementById('e-email').value=e.email||'';
+  document.getElementById('e-start').value=e.startDate||'';
+  // set selects
+  setSelectVal('e-dept',e.dept);
+  setSelectVal('e-role',e.role||'พนักงาน');
+  setSelectVal('e-status',e.status||'active');
+  document.getElementById('emp-sync-status').style.display='none';
+  openModal('add-emp');
+}
+
+function setSelectVal(id,val){
+  var s=document.getElementById(id);if(!s)return;
+  for(var i=0;i<s.options.length;i++){if(s.options[i].value===val||s.options[i].text===val){s.selectedIndex=i;return;}}
+}
+
+function saveEmployee(){
+  var editingId=document.getElementById('e-editing-id').value;
+  var isEdit=editingId!=='';
+  var id=isEdit?editingId:document.getElementById('e-id').value.trim();
+  var name=document.getElementById('e-name').value.trim();
+  var pass=document.getElementById('e-pass').value.trim();
+  if(!id){showToast('กรุณาใส่รหัสพนักงาน','err');return;}
+  if(!name){showToast('กรุณาใส่ชื่อ-นามสกุล','err');return;}
+  if(!pass){showToast('กรุณากำหนดรหัสผ่าน App','err');return;}
+  if(!isEdit&&EMPLOYEES.find(function(e){return e.id===id;})){showToast('รหัสพนักงาน '+id+' มีอยู่แล้ว','err');return;}
+  var empData={
+    id:id, name:name,
+    dept:document.getElementById('e-dept').value,
+    pos:document.getElementById('e-pos').value||'พนักงาน',
+    role:document.getElementById('e-role').value,
+    pass:pass,
+    status:document.getElementById('e-status').value,
+    email:document.getElementById('e-email').value,
+    startDate:document.getElementById('e-start').value,
+    lastLogin:isEdit?((EMPLOYEES.find(function(e){return e.id===id;})||{}).lastLogin||'ยังไม่เข้าใช้'):'ยังไม่เข้าใช้'
+  };
+  if(isEdit){
+    var idx=EMPLOYEES.findIndex(function(e){return e.id===id;});
+    if(idx>-1)EMPLOYEES[idx]=empData;
+  }else{
+    EMPLOYEES.push(empData);
+  }
+  localStorage.setItem('sml_employees',JSON.stringify(EMPLOYEES));
+  closeModal('add-emp');
+  renderEmp();renderDashboard();renderAdminTable();populateCrsSelects();
+  showToast((isEdit?'✓ แก้ไข':'✓ เพิ่ม')+' "'+name+'" สำเร็จ','ok');
+  syncEmpToSheets(empData,isEdit);
+}
+
+function deleteEmp(id){
+  var e=EMPLOYEES.find(function(x){return x.id===id;});
+  if(!e)return;
+  if(!confirm('ลบพนักงาน '+e.name+' ('+id+') ?'))return;
+  EMPLOYEES=EMPLOYEES.filter(function(x){return x.id!==id;});
+  localStorage.setItem('sml_employees',JSON.stringify(EMPLOYEES));
+  renderEmp();renderAdminTable();renderDashboard();
+  showToast('ลบ "'+e.name+'" แล้ว','warn');
+  // Sync ลบไป Sheets
+  sendToGAS({eventType:'delete_employee',employeeId:id,timestamp:new Date().toISOString()},null);
+}
+
+function viewEmp(id){
+  var e=EMPLOYEES.find(function(x){return x.id===id;});if(!e)return;
+  var recs=allRecords.filter(function(r){return r.id===e.id;});
+  var quiz=recs.filter(function(r){return r.type==='Quiz';});
+  var passQ=quiz.filter(function(r){return r.pass==='ผ่าน';});
+  var qpct=quiz.length?Math.round(passQ.length/quiz.length*100):0;
+  var courses=new Set(recs.map(function(r){return r.cid;}));
+  var html=
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">'+
+    '<div style="width:48px;height:48px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0">'+e.name.substring(0,1)+'</div>'+
+    '<div><div style="font-size:16px;font-weight:700">'+e.name+'</div><div style="font-size:12px;color:var(--g400)">'+e.id+' · '+e.dept+'</div></div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">'+
+    '<div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--p)">'+courses.size+'</div><div style="font-size:11px;color:var(--g400)">หลักสูตร</div></div>'+
+    '<div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--t)">'+qpct+'%</div><div style="font-size:11px;color:var(--g400)">Quiz ผ่าน</div></div>'+
+    '<div style="background:var(--g50);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--a)">'+recs.length+'</div><div style="font-size:11px;color:var(--g400)">กิจกรรมรวม</div></div>'+
+    '</div>'+
+    '<table class="tbl" style="margin-bottom:14px"><tbody>'+
+    '<tr><td style="color:var(--g400);width:38%">ตำแหน่ง</td><td>'+(e.pos||'พนักงาน')+'</td></tr>'+
+    '<tr><td style="color:var(--g400)">Role</td><td>'+e.role+'</td></tr>'+
+    '<tr><td style="color:var(--g400)">รหัสผ่าน App</td><td><code style="background:var(--g100);padding:2px 8px;border-radius:5px;font-size:12px">'+e.pass+'</code></td></tr>'+
+    '<tr><td style="color:var(--g400)">สถานะ</td><td>'+(e.status==='active'?'<span class="badge b-done">Active</span>':'<span class="badge b-late">Inactive</span>')+'</td></tr>'+
+    '<tr><td style="color:var(--g400)">อีเมล</td><td>'+(e.email||'—')+'</td></tr>'+
+    '<tr><td style="color:var(--g400)">วันที่เริ่มงาน</td><td>'+(e.startDate||'—')+'</td></tr>'+
+    '<tr><td style="color:var(--g400)">เข้าใช้ล่าสุด</td><td>'+(e.lastLogin||'ยังไม่เข้าใช้')+'</td></tr>'+
+    '</tbody></table>';
+  if(recs.length){
+    html+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">บันทึกล่าสุด</div>'+
+    recs.slice(-5).reverse().map(function(r){
+      var dot=r.pass==='ผ่าน'?'var(--t)':r.pass==='ไม่ผ่าน'?'var(--r)':'var(--p)';
+      var d=new Date(r.ts);var ds=isNaN(d)?r.ts:d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      return '<div class="log-item"><div class="ldot" style="background:'+dot+'"></div><div style="flex:1"><div class="ltxt">'+r.mod+'</div><div class="lmeta">'+ds+' · '+r.cid+'</div></div>'+(r.pass?'<span class="badge '+(r.pass==='ผ่าน'?'b-done':'b-late')+'">'+r.pass+'</span>':'')+'</div>';
+    }).join('');
+  } else {
+    html+='<div style="text-align:center;padding:14px;color:var(--g400);font-size:12px">ยังไม่มีบันทึกการอบรม</div>';
+  }
+  document.getElementById('view-emp-body').innerHTML=html;
+  document.getElementById('view-emp-edit-btn').onclick=function(){closeModal('view-emp');editEmp(id);};
+  openModal('view-emp');
+}
+
+function syncEmpToSheets(e,isEdit){
+  if(!gasUrl)return;
+  var payload={eventType:isEdit?'edit_employee':'add_employee',employeeId:e.id,employeeName:e.name,department:e.dept,position:e.pos,role:e.role,password:e.pass,status:e.status,email:e.email,timestamp:new Date().toISOString()};
+  sendToGAS(payload,function(ok){
+    if(ok)showToast('✓ Sync "'+e.name+'" ไป Google Sheets แล้ว','ok');
+    else showToast('⚠ บันทึกในเครื่องแล้ว (Sheets offline)','warn');
+  });
+}
+
+// ═══════════════ COURSE / MEDIA / QUIZ ═══════════════
+function saveCourse(){
+  var title=document.getElementById('nc-title').value.trim();
+  if(!title){showToast('กรุณาใส่ชื่อหลักสูตร','err');return;}
+  var icons={ปฐมนิเทศ:'ti-users',OJT:'ti-tool',อบรมประจำปี:'ti-calendar',Safety:'ti-shield-check',ISO:'ti-certificate'};
+  var colors={ปฐมนิเทศ:'#5C6BC0',OJT:'#5B3FC8',อบรมประจำปี:'#C87F1A',Safety:'#0F9E75',ISO:'#185FA5'};
+  var type=document.getElementById('nc-type').value;
+  var id=type.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase()+'-'+Date.now().toString().slice(-4);
+  COURSES.push({id:id,title:title,type:type,hours:parseFloat(document.getElementById('nc-hours').value)||2,dept:document.getElementById('nc-dept').value,pass:parseInt(document.getElementById('nc-pass').value)||80,deadline:document.getElementById('nc-deadline').value,color:colors[type]||'#5B3FC8',icon:icons[type]||'ti-book'});
+  localStorage.setItem('sml_courses',JSON.stringify(COURSES));
+  renderCourseGrid();populateCrsSelects();
+  ptab(document.querySelectorAll('.ptab')[0],'crs-list');
+  showToast('✓ สร้างหลักสูตร "'+title+'" สำเร็จ','ok');
+}
+
+function deleteCourse(id){
+  if(!confirm('ลบหลักสูตร '+id+' ?'))return;
+  COURSES=COURSES.filter(function(c){return c.id!==id;});
+  localStorage.setItem('sml_courses',JSON.stringify(COURSES));
+  renderCourseGrid();populateCrsSelects();showToast('ลบหลักสูตรแล้ว','warn');
+}
+
+function saveMedia(){
+  var name=document.getElementById('m-name').value.trim();
+  var url=document.getElementById('m-url').value.trim();
+  if(!name||!url){showToast('กรุณากรอกชื่อและ URL','err');return;}
+  MEDIA.push({name:name,type:document.getElementById('m-type').value,cid:document.getElementById('m-crs').value,url:url,size:'—',by:'HR Admin',date:new Date().toISOString().slice(0,10),order:parseInt(document.getElementById('m-order').value)||1});
+  localStorage.setItem('sml_media',JSON.stringify(MEDIA));
+  closeModal('add-media');renderMedia();
+  showToast('✓ บันทึกสื่อสำเร็จ','ok');
+}
+
+function deleteMedia(i){
+  if(!confirm('ลบสื่อนี้?'))return;
+  MEDIA.splice(i,1);localStorage.setItem('sml_media',JSON.stringify(MEDIA));renderMedia();showToast('ลบสื่อแล้ว','warn');
+}
+
+function saveQuiz(){
+  var q=document.getElementById('q-txt').value.trim();
+  if(!q){showToast('กรุณาพิมพ์คำถาม','err');return;}
+  var opts=[0,1,2,3].map(function(i){return document.getElementById('qo'+i).value.trim();}).filter(Boolean);
+  if(opts.length<2){showToast('กรุณาใส่ตัวเลือกอย่างน้อย 2 ข้อ','err');return;}
+  var ans=parseInt(document.querySelector('input[name=qans]:checked').value)||0;
+  QUIZBANK.push({cid:document.getElementById('q-crs').value,mod:document.getElementById('q-mod').value||'Quiz',q:q,opts:opts,ans:ans});
+  localStorage.setItem('sml_quiz',JSON.stringify(QUIZBANK));
+  closeModal('add-quiz');
+  // reset form
+  document.getElementById('q-txt').value='';
+  [0,1,2,3].forEach(function(i){document.getElementById('qo'+i).value='';});
+  document.getElementById('qa0').checked=true;
+  renderQuizBank();populateCrsSelects();
+  showToast('✓ เพิ่มข้อสอบสำเร็จ','ok');
+}
+
+function deleteQuiz(i){
+  if(!confirm('ลบข้อสอบนี้?'))return;
+  QUIZBANK.splice(i,1);localStorage.setItem('sml_quiz',JSON.stringify(QUIZBANK));renderQuizBank();showToast('ลบข้อสอบแล้ว','warn');
+}
+
+// ═══════════════ EXPORT ═══════════════
+function exportCSV(t){
+  var data,headers,keys;
+  if(t==='emp'){data=EMPLOYEES;headers=['EmployeeID','Name','Department','Position','Role','Password','Status','Email','StartDate','LastLogin'];keys=['id','name','dept','pos','role','pass','status','email','startDate','lastLogin'];}
+  else if(t==='quiz'){data=allRecords.filter(function(r){return r.type==='Quiz';});headers=['Timestamp','EmployeeID','Name','Department','CourseID','Module','Score','PassFail'];keys=['ts','id','name','dept','cid','mod','score','pass'];}
+  else{data=allRecords;headers=['Timestamp','EmployeeID','Name','Department','CourseID','Module','Type','Score','PassFail'];keys=['ts','id','name','dept','cid','mod','type','score','pass'];}
+  var csv=headers.join(',')+'\n'+data.map(function(r){return keys.map(function(k){return'"'+(r[k]||'')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='SML_'+t+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  showToast('✓ Export CSV สำเร็จ','ok');
+}
+
+// ═══════════════ UI HELPERS ═══════════════
+function openModal(id){var el=document.getElementById('modal-'+id);if(el)el.classList.add('open');}
+function closeModal(id){var el=document.getElementById('modal-'+id);if(el)el.classList.remove('open');}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
+
+function showToast(msg,type){
+  var colors={ok:'#0F9E75',err:'#D94040',warn:'#C87F1A'};
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:'+(colors[type]||'#1A1A18')+';color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;transition:opacity .3s;max-width:340px;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},2800);
+}
+
+function copyUrl(){
+  var v=document.getElementById('app-url').value;
+  navigator.clipboard.writeText(v).then(function(){showToast('✓ Copy แล้ว','ok');}).catch(function(){showToast('ก๊อปปี้ไม่ได้ ลองทำด้วยมือ','err');});
+}
+
+function onSearch(){
+  var p=document.querySelector('.pg.active');if(!p)return;
+  var id=p.id.replace('p-','');
+  if(id==='employees')renderEmp();
+  else if(id==='records')renderRecords();
+}
+
+// ═══════════════ GAS SYNC ═══════════════
+function sendToGAS(payload, cb){
+  if(!gasUrl){if(cb)cb(false);return;}
+  // ใช้ cors mode เพื่อรับ response จริงจาก GAS
+  fetch(gasUrl, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(payload)
+  }).then(function(r){return r.json();})
+  .then(function(d){
+    if(d&&d.status==='ok'){if(cb)cb(true);updateSyncDot('ok');}
+    else{if(cb)cb(false);updateSyncDot('err');}
+  }).catch(function(){
+    // fallback no-cors
+    fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(){if(cb)cb(true);updateSyncDot('ok');})
+      .catch(function(){if(cb)cb(false);updateSyncDot('err');});
+  });
+}
+
+function updateSyncDot(s){
+  var dot=document.getElementById('sdot');
+  var txt=document.getElementById('sync-txt');
+  if(!dot)return;
+  var t=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  dot.className='sdot '+(s==='ok'?'sd-ok':'sd-err');
+  if(txt)txt.textContent=s==='ok'?'✓ Sync '+t:'✗ Sync ไม่สำเร็จ';
+}
+
+// ═══════════════ ADMIN ACCOUNTS CRUD ═══════════════
+function renderAdminList(){
+  document.getElementById('adm-count').textContent=ADMINS.length+' Admin';
+  var rb={'Super Admin':'b-sa','HR Admin':'b-hr','Dept Admin':'b-da','Viewer':'b-vw'};
+  var html=ADMINS.map(function(a){
+    var sb=a.status==='active'?'<span class="badge b-done">Active</span>':'<span class="badge b-late">Inactive</span>';
+    var isCurrent=currentAdmin&&currentAdmin.id===a.id;
+    return '<tr>'+
+      '<td><strong>'+a.id+'</strong>'+(isCurrent?' <span class="badge b-prog" style="font-size:10px">คุณ</span>':'')+'</td>'+
+      '<td>'+a.name+'</td>'+
+      '<td><span class="badge '+(rb[a.role]||'b-todo')+'">'+a.role+'</span></td>'+
+      '<td>'+a.dept+'</td>'+
+      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">'+a.pass+'</code></td>'+
+      '<td>'+sb+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+        '<button class="btn btn-o btn-sm" onclick="editAdmin(\''+a.id+'\')"><i class="ti ti-edit"></i></button>'+
+        (!isCurrent?'<button class="btn btn-r btn-sm" onclick="deleteAdmin(\''+a.id+'\')"><i class="ti ti-trash"></i></button>':'')+
+      '</td></tr>';
+  }).join('');
+  var body=document.getElementById('admin-list-body');
+  if(body)body.innerHTML=html||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--g400)">ไม่มีข้อมูล</td></tr>';
+}
+
+function openAddAdmin(){
+  document.getElementById('adm-modal-title').textContent='เพิ่ม Admin ใหม่';
+  document.getElementById('adm-save-btn').innerHTML='<i class="ti ti-plus"></i>เพิ่ม Admin';
+  document.getElementById('adm-editing-id').value='';
+  document.getElementById('a-id').value='';
+  document.getElementById('a-id').disabled=false;
+  document.getElementById('a-name').value='';
+  document.getElementById('a-pass').value='';
+  document.getElementById('a-role').value='HR Admin';
+  document.getElementById('a-dept').value='ทุกแผนก';
+  document.getElementById('a-status').value='active';
+  openModal('add-admin');
+}
+
+function editAdmin(id){
+  var a=ADMINS.find(function(x){return x.id===id;});if(!a)return;
+  document.getElementById('adm-modal-title').textContent='แก้ไข Admin: '+a.id;
+  document.getElementById('adm-save-btn').innerHTML='<i class="ti ti-check"></i>บันทึกการแก้ไข';
+  document.getElementById('adm-editing-id').value=a.id;
+  document.getElementById('a-id').value=a.id;
+  document.getElementById('a-id').disabled=true;
+  document.getElementById('a-name').value=a.name||'';
+  document.getElementById('a-pass').value=a.pass||'';
+  setSelectVal('a-role',a.role||'HR Admin');
+  setSelectVal('a-dept',a.dept||'ทุกแผนก');
+  setSelectVal('a-status',a.status||'active');
+  openModal('add-admin');
+}
+
+function saveAdmin(){
+  var editingId=document.getElementById('adm-editing-id').value;
+  var isEdit=editingId!=='';
+  var id=isEdit?editingId:document.getElementById('a-id').value.trim();
+  var name=document.getElementById('a-name').value.trim();
+  var pass=document.getElementById('a-pass').value.trim();
+  if(!id){showToast('กรุณาใส่รหัส Admin','err');return;}
+  if(!name){showToast('กรุณาใส่ชื่อ','err');return;}
+  if(!pass){showToast('กรุณากำหนดรหัสผ่าน','err');return;}
+  if(!isEdit&&ADMINS.find(function(a){return a.id===id;})){showToast('รหัส Admin นี้มีอยู่แล้ว','err');return;}
+  var admData={id:id,name:name,role:document.getElementById('a-role').value,dept:document.getElementById('a-dept').value,pass:pass,status:document.getElementById('a-status').value};
+  if(isEdit){var idx=ADMINS.findIndex(function(a){return a.id===id;});if(idx>-1)ADMINS[idx]=admData;}
+  else{ADMINS.push(admData);}
+  localStorage.setItem('sml_admins',JSON.stringify(ADMINS));
+  syncAdminToSheets(admData,isEdit);
+  closeModal('add-admin');
+  renderAdminList();
+  showToast((isEdit?'✓ แก้ไข':'✓ เพิ่ม')+' Admin "'+name+'" สำเร็จ','ok');
+}
+
+function deleteAdmin(id){
+  if(currentAdmin&&currentAdmin.id===id){showToast('ไม่สามารถลบบัญชีตัวเองได้','err');return;}
+  var a=ADMINS.find(function(x){return x.id===id;});if(!a)return;
+  if(!confirm('ลบ Admin '+a.name+' ?'))return;
+  ADMINS=ADMINS.filter(function(x){return x.id!==id;});
+  localStorage.setItem('sml_admins',JSON.stringify(ADMINS));
+  renderAdminList();
+  showToast('ลบ Admin "'+a.name+'" แล้ว','warn');
+}
+
+function syncAdminToSheets(a,isEdit){
+  var payload={eventType:isEdit?'edit_admin':'add_admin',adminId:a.id,adminName:a.name,role:a.role,department:a.dept,password:a.pass,status:a.status,timestamp:new Date().toISOString()};
+  sendToGAS(payload,function(ok){
+    if(ok)showToast('✓ Sync Admin "'+a.name+'" ไป Sheets แล้ว','ok');
+  });
+}
+
+// ═══════════════ NAVIGATION ═══════════════
+var MAIN_TABS=['dashboard','employees','roles','logs'];
+var TITLES={dashboard:'แอปการฝึกอบรมพนักงาน',employees:'พนักงาน',roles:'Role & Permission',logs:'Activity Log',courses:'จัดการหลักสูตร',media:'สื่อการสอน',quiz:'Quiz Bank',records:'บันทึกการอบรม',export:'Export ข้อมูล',admins:'จัดการ Admin Accounts',settings:'ตั้งค่าระบบ'};
+
+function go(id){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('active');});
+  var el=document.getElementById('p-'+id);if(el)el.classList.add('active');
+  document.querySelectorAll('.sbn').forEach(function(n){n.classList.remove('active');});
+  var nav=document.getElementById('nav-'+id);if(nav)nav.classList.add('active');
+  document.getElementById('tb-title').textContent=TITLES[id]||id;
+  var tabRow=document.getElementById('tab-row');
+  tabRow.style.display=MAIN_TABS.includes(id)?'flex':'none';
+  if(MAIN_TABS.includes(id)){document.querySelectorAll('.tab-btn').forEach(function(t,i){t.classList.toggle('active',MAIN_TABS[i]===id);});}
+  if(id==='admins')renderAdminList();
+}
+
+function setTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');go(id);
+}
+
+function ptab(btn,id){
+  var pg=btn.closest('.pg');
+  if(pg){pg.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});}
+  btn.classList.add('active');
+  var container=btn.closest('.pg')||document;
+  container.querySelectorAll('.ptab-p').forEach(function(p){p.classList.remove('active');});
+  var el=document.getElementById(id);if(el)el.classList.add('active');
+}
+
+function changeRole(){
+  var r=document.getElementById('view-as').value;
+  var names={sa:'ยศศักดิ์ ท.',hr:'ดอลลาดา ม.',da:'หัวหน้า PDI',vw:'เจ้าหน้าที่ Safety'};
+  var roles={sa:'Super Admin',hr:'HR Admin',da:'Dept Admin',vw:'Viewer'};
+  document.getElementById('sb-un').textContent=names[r];
+  document.getElementById('sb-ur').textContent=roles[r];
+}
+</script>
+</body>
+</html>
