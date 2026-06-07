@@ -111,6 +111,7 @@ input,select{font-family:var(--font)}
 .login-wrap{padding:28px 18px;display:flex;flex-direction:column;align-items:center}
 .login-logo{width:62px;height:62px;background:var(--p);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
 .login-logo i{font-size:32px;color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
 .lf{width:100%;margin-bottom:11px}
 .ll{font-size:12px;font-weight:500;color:var(--g600);margin-bottom:4px}
 .li{width:100%;padding:11px 13px;border:1.5px solid var(--g200);border-radius:11px;font-size:14px;font-family:var(--font);outline:none;color:var(--g900);transition:border-color .15s}
@@ -353,13 +354,21 @@ function loadLocal(){try{var u=localStorage.getItem('sml_user');var p=localStora
 // LOAD EMPLOYEES FROM SHEETS (via GAS)
 // ═══════════════════════════════════════════
 function loadEmployees(cb){
-  if(!GAS_URL){cb(DEMO_EMPLOYEES);return;}
-  fetch(GAS_URL+'?type=employees').then(function(r){return r.json();}).then(function(d){
-    if(Array.isArray(d)&&d.length){
-      employeeList=d.map(function(e){return{id:e.EmployeeID||e.id,name:e.EmployeeName||e.name,dept:e.Department||e.dept,pos:e.Position||e.pos,pass:e.Password||e.pass};});
-    }
-    cb(employeeList);
-  }).catch(function(){cb(DEMO_EMPLOYEES);});
+  // ใช้ DEMO ก่อนเสมอ ถ้าไม่มี GAS URL
+  if(!GAS_URL || GAS_URL===''){cb(DEMO_EMPLOYEES);return;}
+  // มี GAS URL — ลอง fetch แต่ timeout 3 วินาที
+  var done=false;
+  var timer=setTimeout(function(){if(!done){done=true;cb(DEMO_EMPLOYEES);}},3000);
+  fetch(GAS_URL+'?type=employees')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(done)return;done=true;clearTimeout(timer);
+      if(Array.isArray(d)&&d.length){
+        employeeList=d.map(function(e){return{id:e.EmployeeID||e.id,name:e.EmployeeName||e.name,dept:e.Department||e.dept,pos:e.Position||e.pos,pass:e.Password||e.pass};});
+        cb(employeeList);
+      } else {cb(DEMO_EMPLOYEES);}
+    })
+    .catch(function(){if(!done){done=true;clearTimeout(timer);cb(DEMO_EMPLOYEES);}});
 }
 
 // ═══════════════════════════════════════════
@@ -368,9 +377,16 @@ function loadEmployees(cb){
 function doLogin(){
   var id=document.getElementById('li-id').value.trim();
   var pass=document.getElementById('li-pass').value;
+  if(!id||!pass){document.getElementById('login-err').style.display='block';return;}
   document.getElementById('login-err').style.display='none';
+  // แสดง loading
+  var btn=document.querySelector('.btn-f.btn-p');
+  var origHTML=btn.innerHTML;
+  btn.innerHTML='<i class="ti ti-loader" style="font-size:17px;animation:spin 1s linear infinite"></i>กำลังเข้าสู่ระบบ...';
+  btn.disabled=true;
   loadEmployees(function(list){
-    var emp=list.find(function(e){return e.id===id&&e.pass===pass;});
+    btn.innerHTML=origHTML;btn.disabled=false;
+    var emp=list.find(function(e){return String(e.id).trim()===id&&String(e.pass).trim()===pass;});
     if(!emp){document.getElementById('login-err').style.display='block';return;}
     user={id:emp.id,name:emp.name,dept:emp.dept,pos:emp.pos};
     if(!progress[id])progress[id]={};
