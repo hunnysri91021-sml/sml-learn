@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SML Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root{--p:#5B3FC8;--pl:#EEE9FF;--pm:#7B5CE0;--t:#0F9E75;--tl:#E0F5EE;--a:#C87F1A;--al:#FEF0DA;--r:#D94040;--rl:#FDEAEA;--g50:#F8F8F6;--g100:#EFEFEC;--g200:#DDDDD8;--g400:#9B9A94;--g600:#5C5B56;--g900:#1A1A18;--w:#FFF;--font:'Noto Sans Thai',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--font);font-size:14px;color:var(--g900);background:var(--g50);overflow:hidden}
+button{font-family:var(--font);cursor:pointer;border:none;background:none}
+input,select{font-family:var(--font)}
+.app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;background:var(--w);position:relative;overflow:hidden}
+.topbar{flex-shrink:0;background:var(--w);border-bottom:1px solid var(--g100);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:70px}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:var(--w);border-top:1px solid var(--g100);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;color:var(--g400)}
+.nav-item i{font-size:22px}
+.nav-item span{font-size:10px;font-weight:500}
+.nav-item.active i,.nav-item.active span{color:var(--p)}
+.screen{display:none;padding:16px}.screen.active{display:block}
+/* CARDS */
+.card{background:var(--w);border:1px solid var(--g100);border-radius:14px;padding:14px}
+.hero{background:linear-gradient(135deg,var(--p) 0%,var(--pm) 100%);border-radius:16px;padding:18px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero-name{font-size:16px;font-weight:600;margin-bottom:2px}
+.hero-dept{font-size:12px;opacity:.8}
+.hero-prog{margin-top:12px}
+.hero-prog-label{display:flex;justify-content:space-between;font-size:11px;opacity:.8;margin-bottom:5px}
+.hero-bar{height:5px;background:rgba(255,255,255,.25);border-radius:50px;overflow:hidden}
+.hero-fill{height:100%;background:#fff;border-radius:50px;transition:width .5s}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:50px}
+.b-done{background:var(--tl);color:#085041}.b-prog{background:#E6F0FC;color:#0C3F7C}.b-todo{background:var(--g100);color:var(--g600)}.b-late{background:var(--rl);color:#7F1D1D}
+.prog-bar{height:5px;background:var(--g100);border-radius:50px;overflow:hidden}
+.prog-fill{height:100%;border-radius:50px;transition:width .4s}
+.pf-p{background:var(--p)}.pf-t{background:var(--t)}.pf-a{background:var(--a)}.pf-r{background:var(--r)}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-box{background:var(--g50);border-radius:12px;padding:11px 8px;text-align:center}
+.stat-val{font-size:20px;font-weight:700;line-height:1}
+.stat-lbl{font-size:10px;color:var(--g400);margin-top:4px}
+.sec-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.sec-title span{font-size:11px;color:var(--p);font-weight:500;cursor:pointer}
+.alert{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border-radius:10px;border:1px solid;margin-bottom:9px}
+.alert i{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-t{font-size:12px;font-weight:500}
+.alert-s{font-size:11px;opacity:.7;margin-top:1px}
+.al-r{background:var(--rl);border-color:#FBBBBB;color:#7F1D1D}
+.al-a{background:var(--al);border-color:#F5CC80;color:#633806}
+.al-g{background:var(--tl);border-color:#9FDEC8;color:#085041}
+.al-p{background:var(--pl);border-color:#C4B5F5;color:#3B1FA8}
+/* COURSE */
+.mod-item{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1.5px solid var(--g100);border-radius:12px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;background:var(--w)}
+.mod-item:active{transform:scale(.98)}
+.mod-item.locked{opacity:.5;cursor:not-allowed}
+.mod-item.done-m{border-color:var(--t);background:var(--tl)}
+.mod-item.active-m{border-color:var(--p);background:var(--pl)}
+.mod-num{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600}
+.mn-t{background:var(--g100);color:var(--g600)}.mn-a{background:var(--p);color:#fff}.mn-d{background:var(--t);color:#fff}.mn-l{background:var(--g100);color:var(--g400)}
+/* CONTENT */
+.cv-hdr{background:var(--p);color:#fff;padding:13px 14px;border-radius:13px 13px 0 0;display:flex;align-items:center;gap:9px}
+.cv-back{color:#fff;font-size:20px;padding:0;flex-shrink:0}
+.cv-title{font-size:13px;font-weight:600;flex:1}
+.slide{background:var(--g50);border-radius:11px;padding:18px;margin-bottom:12px;min-height:170px;display:flex;flex-direction:column;justify-content:center}
+.slide-num{font-size:10px;color:var(--g400);margin-bottom:7px}
+.slide-title{font-size:15px;font-weight:600;color:var(--g900);margin-bottom:9px;line-height:1.4}
+.slide-body{font-size:13px;color:var(--g600);line-height:1.7}
+.slide-media{width:100%;border-radius:10px;margin-top:12px;background:linear-gradient(135deg,var(--p),var(--pm));height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer}
+.slide-media i{font-size:32px;color:rgba(255,255,255,.7)}
+.slide-media span{font-size:12px;color:rgba(255,255,255,.7)}
+.slide-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.slide-dots{display:flex;gap:4px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--g200);transition:all .2s}
+.sdot.active{background:var(--p);width:18px;border-radius:3px}
+/* QUIZ */
+.qz-hdr{background:var(--p);color:#fff;padding:14px;border-radius:13px 13px 0 0}
+.qz-htitle{font-size:13px;font-weight:600;margin-bottom:3px}
+.qz-hsub{font-size:11px;opacity:.8}
+.qprog{display:flex;align-items:center;gap:7px;margin-top:9px}
+.qprog .prog-bar{flex:1;background:rgba(255,255,255,.25)}
+.qprog .prog-fill{background:#fff}
+.qprog-n{font-size:11px;opacity:.8;white-space:nowrap}
+.q-text{font-size:14px;font-weight:500;color:var(--g900);line-height:1.6;margin-bottom:14px}
+.q-options{display:flex;flex-direction:column;gap:9px}
+.q-opt{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1.5px solid var(--g200);border-radius:11px;cursor:pointer;background:var(--w);transition:all .15s;text-align:left;width:100%}
+.q-opt:active{transform:scale(.98)}
+.q-opt.sel{border-color:var(--p);background:var(--pl)}
+.q-opt.correct{border-color:var(--t);background:var(--tl)}
+.q-opt.wrong{border-color:var(--r);background:var(--rl)}
+.q-opt-l{width:26px;height:26px;border-radius:50%;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--g600);flex-shrink:0;transition:all .15s}
+.q-opt.sel .q-opt-l{background:var(--p);color:#fff}
+.q-opt.correct .q-opt-l{background:var(--t);color:#fff}
+.q-opt.wrong .q-opt-l{background:var(--r);color:#fff}
+.q-opt-text{font-size:13px;color:var(--g900);flex:1;line-height:1.4}
+.qz-footer{padding:13px 14px;border-top:1px solid var(--g100);display:flex;gap:9px}
+.result-wrap{text-align:center;padding:28px 14px}
+.rc{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:27px;font-weight:700}
+.rc-pass{background:var(--tl);color:var(--t)}.rc-fail{background:var(--rl);color:var(--r)}
+/* CERT */
+.cert-card{background:linear-gradient(135deg,#1A1A18,#3B3B38);border-radius:15px;padding:16px;margin-bottom:11px;color:#fff;position:relative;overflow:hidden}
+.cert-ribbon{position:absolute;top:14px;right:14px;width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.cert-ribbon i{font-size:17px;color:gold}
+/* BTN */
+.btn-f{width:100%;padding:12px;border-radius:11px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:all .15s}
+.btn-f i{font-size:17px}
+.btn-p{background:var(--p);color:#fff}.btn-p:active{opacity:.85}
+.btn-o{background:var(--g50);color:var(--g600);border:1px solid var(--g200)}
+.btn-g{background:var(--t);color:#fff}
+/* LOGIN */
+.login-wrap{padding:28px 18px;display:flex;flex-direction:column;align-items:center}
+.login-logo{width:62px;height:62px;background:var(--p);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.login-logo i{font-size:32px;color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lf{width:100%;margin-bottom:11px}
+.ll{font-size:12px;font-weight:500;color:var(--g600);margin-bottom:4px}
+.li{width:100%;padding:11px 13px;border:1.5px solid var(--g200);border-radius:11px;font-size:14px;font-family:var(--font);outline:none;color:var(--g900);transition:border-color .15s}
+.li:focus{border-color:var(--p)}
+.sync-status{display:flex;align-items:center;gap:6px;padding:6px 11px;background:var(--g50);border-radius:8px;font-size:11px;color:var(--g400);margin-bottom:11px}
+.sdot2{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sd-ok{background:var(--t)}.sd-wait{background:var(--a)}.sd-err{background:var(--r)}
+/* COURSE CARD */
+.crs-card{display:flex;align-items:center;gap:11px;padding:13px 13px;background:var(--w);border:1px solid var(--g100);border-radius:12px;margin-bottom:9px;cursor:pointer;transition:border-color .15s}
+.crs-card:hover{border-color:var(--p)}
+.crs-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.crs-icon i{font-size:21px;color:#fff}
+
+/* NOTIFICATION PANEL */
+.notif-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;display:none}
+.notif-overlay.open{display:block}
+.notif-panel{position:absolute;top:54px;right:0;left:0;max-width:430px;margin:0 auto;background:var(--w);border-bottom-left-radius:16px;border-bottom-right-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:70vh;overflow-y:auto;transform:translateY(-10px);opacity:0;transition:all .2s}
+.notif-overlay.open .notif-panel{transform:translateY(0);opacity:1}
+.notif-hdr{padding:14px 16px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between}
+.notif-title{font-size:14px;font-weight:700}
+.notif-clear{font-size:12px;color:var(--p);cursor:pointer}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--g50)}
+.notif-item:last-child{border-bottom:none}
+.notif-dot-wrap{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-txt{font-size:13px;font-weight:500;color:var(--g900);margin-bottom:2px;line-height:1.4}
+.notif-sub{font-size:11px;color:var(--g400)}
+.notif-unread{background:var(--pl)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:700;color:var(--g900)"><i class="ti ti-school" style="font-size:17px;color:var(--p);vertical-align:-3px;margin-right:4px"></i>SML Learn</div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="position:relative;cursor:pointer" onclick="toggleNotif()"><i class="ti ti-bell" style="font-size:19px;color:var(--g400)"></i><div id="notif-dot" style="display:none;position:absolute;top:-1px;right:-1px;width:6px;height:6px;background:var(--r);border-radius:50%;border:1.5px solid #fff"></div></div>
+      <div id="top-av" style="width:30px;height:30px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer" onclick="go('profile')">?</div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-overlay" id="notif-overlay" onclick="closeNotif()">
+    <div class="notif-panel" onclick="event.stopPropagation()">
+      <div class="notif-hdr">
+        <div class="notif-title">การแจ้งเตือน</div>
+        <div class="notif-clear" onclick="clearNotifs()">ล้างทั้งหมด</div>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- LOGIN -->
+    <div class="screen active" id="s-login">
+      <div class="login-wrap">
+        <div class="login-logo"><i class="ti ti-school"></i></div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:5px;text-align:center">SML Learn</div>
+        <div style="font-size:13px;color:var(--g400);text-align:center;margin-bottom:24px">สยามกลการโลจิสติกส์</div>
+        <div class="lf"><div class="ll">รหัสพนักงาน</div><input class="li" id="li-id" placeholder="เช่น SML-001"></div>
+        <div class="lf"><div class="ll">รหัสผ่าน</div><input class="li" id="li-pass" type="password" placeholder="กรอกรหัสผ่านที่ HR กำหนด"></div>
+        <button class="btn-f btn-p" style="margin-top:4px;margin-bottom:14px" onclick="doLogin()"><i class="ti ti-login"></i>เข้าสู่ระบบ</button>
+        <div id="login-err" style="font-size:12px;color:var(--r);text-align:center;display:none">รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง</div>
+        <div style="font-size:11px;color:var(--g400);text-align:center;margin-top:8px">ติดต่อ HR เพื่อรับรหัสผ่าน</div>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="screen" id="s-home">
+      <div class="hero">
+        <div class="hero-name" id="h-name">สวัสดี</div>
+        <div class="hero-dept" id="h-dept">—</div>
+        <div class="hero-prog">
+          <div class="hero-prog-label"><span>ความก้าวหน้าโดยรวม</span><span id="h-pct">0%</span></div>
+          <div class="hero-bar"><div class="hero-fill" id="h-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" style="color:var(--t)" id="st-done">0</div><div class="stat-lbl">ผ่านแล้ว</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--p)" id="st-prog">0</div><div class="stat-lbl">กำลังเรียน</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--g400)" id="st-todo">0</div><div class="stat-lbl">ยังไม่เริ่ม</div></div>
+      </div>
+      <div class="sync-status" id="sync-status"><div class="sdot2 sd-ok" id="sdot2"></div><span>บันทึกแล้ว · <span id="sync-time">—</span></span></div>
+      <div class="card">
+        <div class="sec-title">เรียนต่อจากที่ค้างไว้ <span onclick="go('courses')">ดูทั้งหมด</span></div>
+        <div id="resume-area"></div>
+      </div>
+    </div>
+
+    <!-- COURSES -->
+    <div class="screen" id="s-courses">
+      <div class="sec-title" style="margin-bottom:12px">หลักสูตรของฉัน</div>
+      <div id="course-list"></div>
+      <div style="border-top:1px solid var(--g100);margin:16px 0 10px"></div>
+      <div class="sec-title" style="margin-bottom:10px">
+        <span style="display:flex;align-items:center;gap:5px"><i class="ti ti-star" style="font-size:15px;color:#F59E0B"></i>หลักสูตรเสริม — เลือกเรียนเพิ่มได้</span>
+      </div>
+      <div id="optional-catalog"></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen" id="s-detail">
+      <div id="detail-hdr" style="background:linear-gradient(135deg,#1A1A18,#3B3B38);border-radius:15px;padding:16px;margin-bottom:13px;color:#fff"></div>
+      <div id="module-list"></div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="screen" id="s-content">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="cv-hdr">
+          <button class="cv-back" onclick="backToDetail()"><i class="ti ti-arrow-left"></i></button>
+          <div class="cv-title" id="cv-title">Module</div>
+        </div>
+        <div style="padding:14px">
+          <div class="slide-nav">
+            <button class="btn-f btn-o" id="btn-prev" onclick="prevSlide()" style="width:auto;padding:7px 12px;font-size:12px"><i class="ti ti-chevron-left"></i>ก่อนหน้า</button>
+            <div class="slide-dots" id="slide-dots"></div>
+            <button class="btn-f btn-o" id="btn-next" onclick="nextSlide()" style="width:auto;padding:7px 12px;font-size:12px">ถัดไป<i class="ti ti-chevron-right"></i></button>
+          </div>
+          <div id="slide-area"></div>
+          <div id="content-action" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="s-quiz">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="qz-hdr">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:3px">
+            <button style="color:#fff;font-size:19px;padding:0;cursor:pointer" onclick="backToDetail()"><i class="ti ti-arrow-left"></i></button>
+            <div class="qz-htitle" id="qz-title">Quiz</div>
+          </div>
+          <div class="qz-hsub" id="qz-sub">Module</div>
+          <div class="qprog"><div class="prog-bar"><div class="prog-fill" id="qbar" style="width:0%"></div></div><div class="qprog-n" id="qnum">1/5</div></div>
+        </div>
+        <div style="padding:14px" id="quiz-body"></div>
+        <div class="qz-footer" id="qz-footer">
+          <button class="btn-f btn-o" onclick="skipQ()" style="flex:.4"><i class="ti ti-arrow-right"></i>ข้าม</button>
+          <button class="btn-f btn-p" id="q-next" onclick="nextQ()" style="flex:.6;opacity:.4" disabled><i class="ti ti-arrow-right"></i>ถัดไป</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTS -->
+    <div class="screen" id="s-certs">
+      <div class="sec-title" style="margin-bottom:12px">ใบรับรองของฉัน</div>
+      <div id="cert-list"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="s-profile">
+      <div class="hero" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="prof-av" style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0">?</div>
+          <div><div class="hero-name" id="prof-name">—</div><div class="hero-dept" id="prof-dept">—</div></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" id="pst-hrs">0</div><div class="stat-lbl">ชม. อบรม</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--t)" id="pst-cert">0</div><div class="stat-lbl">ใบรับรอง</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--p)" id="pst-crs">0</div><div class="stat-lbl">หลักสูตร</div></div>
+      </div>
+      <div class="card" style="margin-bottom:11px">
+        <div class="sec-title" style="margin-bottom:9px">ความก้าวหน้า</div>
+        <div id="prof-prog"></div>
+      </div>
+      <div class="card">
+        <button class="btn-f btn-o" onclick="doLogout()" style="color:var(--r)"><i class="ti ti-logout"></i>ออกจากระบบ</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav" id="bottom-nav" style="display:none">
+    <button class="nav-item active" id="nav-home" onclick="go('home')"><i class="ti ti-home"></i><span>หน้าหลัก</span></button>
+    <button class="nav-item" id="nav-courses" onclick="go('courses')"><i class="ti ti-book-2"></i><span>หลักสูตร</span></button>
+    <button class="nav-item" id="nav-certs" onclick="go('certs')"><i class="ti ti-certificate"></i><span>ใบรับรอง</span></button>
+    <button class="nav-item" id="nav-profile" onclick="go('profile')"><i class="ti ti-user"></i><span>ของฉัน</span></button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG — ใส่ GAS URL ที่นี่
+// ═══════════════════════════════════════════
+var GAS_URL = localStorage.getItem('sml_gas_url') || 'https://script.google.com/macros/s/AKfycbz30VK54QR7UCnrnf3xFwd7yrGTcnyoGdS6G7XqF_T5c5fEjmZqzlSU0rIX61Dpsb6I/exec';
+
+// ═══════════════════════════════════════════
+// COURSE DATA — โหลดจาก localStorage (sync กับ Admin)
+// ═══════════════════════════════════════════
+var COURSES_DEFAULT = [
+  {
+    id:'ORI-001',title:'ปฐมนิเทศพนักงานใหม่',icon:'ti-users',color:'#5C6BC0',
+    hours:3,dept:'ทุกแผนก',deadline:'ไม่มีกำหนด',
+    modules:[
+      {id:'m1',title:'ยินดีต้อนรับสู่ SML',type:'content',slides:[
+        {title:'SML คือใคร?',body:'บริษัท สยามกลการโลจิสติกส์ จำกัด ให้บริการด้านการขนส่งและจัดการรถยนต์ครบวงจร ภายใต้กลุ่มสยามกลการ (SMG)',media:null},
+        {title:'วิสัยทัศน์',body:'เป็นผู้นำด้าน Vehicle Logistics ที่ได้รับความไว้วางใจสูงสุดในประเทศไทย',media:null},
+        {title:'บริการหลัก',body:'Yard & PDI Management · Accessory Installation · Transportation',media:null},
+      ]},
+      {id:'m2',title:'วัฒนธรรมองค์กร 5S',type:'content',slides:[
+        {title:'5S ของ SML',body:'สะสาง — คัดแยกสิ่งของที่ไม่จำเป็น\nสะดวก — จัดวางให้หยิบใช้ง่าย\nสะอาด — ทำความสะอาดสม่ำเสมอ',media:'video'},
+        {title:'5S (ต่อ)',body:'สร้างมาตรฐาน — กำหนดวิธีทำงานที่ดีที่สุด\nสร้างนิสัย — ทำ 5S จนเป็นนิสัยประจำวัน',media:null},
+      ]},
+      {id:'m3',title:'แบบทดสอบปฐมนิเทศ',type:'quiz',questions:[
+        {q:'SML ย่อมาจากอะไร?',opts:['Siam Motor Logistics','Siam Montri Logistics','Siam Motorcar Logistics','Siam Moving Logistics'],ans:0},
+        {q:'5S ข้อสุดท้ายของ SML คืออะไร?',opts:['สุขลักษณะ','สร้างนิสัย','สะสาง','สะดวก'],ans:1},
+        {q:'SML อยู่ภายใต้กลุ่มบริษัทใด?',opts:['Toyota','SMG (สยามกลการ)','CP Group','PTT'],ans:1},
+      ]}
+    ]
+  },
+  {
+    id:'OJT-PDI-001',title:'OJT: ตรวจรับรถยนต์ PDI',icon:'ti-tool',color:'#5B3FC8',
+    hours:6,dept:'ปฏิบัติการ PDI',deadline:'30 มิ.ย. 2569',
+    modules:[
+      {id:'m1',title:'ขั้นตอนการตรวจรับรถ',type:'content',slides:[
+        {title:'ภาพรวม PDI',body:'PDI (Pre-Delivery Inspection) คือการตรวจสอบรถยนต์ก่อนส่งมอบให้ลูกค้า',media:'slides'},
+        {title:'ขั้นตอนที่ 1: ตรวจเอกสาร',body:'ตรวจสอบใบส่งมอบ · ตรวจเลขตัวถัง (VIN) · ตรวจสีและรุ่นรถ',media:null},
+        {title:'ขั้นตอนที่ 2: ตรวจภายนอก',body:'ตรวจสภาพตัวถัง รอยขีดข่วน · ตรวจกระจก ไฟหน้า ไฟท้าย',media:null},
+        {title:'ขั้นตอนที่ 3: บันทึก NC',body:'พบ NC ต้องบันทึกใน SML NC Tracker ทันที พร้อมถ่ายรูป',media:null},
+      ]},
+      {id:'m2',title:'การบันทึก NC',type:'content',slides:[
+        {title:'NC คืออะไร?',body:'Non-Conformance คือข้อบกพร่องที่พบระหว่างการตรวจ เช่น รอยขีด สีลอก อุปกรณ์ขาด',media:null},
+        {title:'วิธีบันทึก NC',body:'1. เปิด SML NC Tracker\n2. กรอกหมายเลขรถ\n3. เลือกประเภทข้อบกพร่อง\n4. อัปโหลดรูปภาพ\n5. กด Submit',media:null},
+      ]},
+      {id:'m3',title:'แบบทดสอบ OJT PDI',type:'quiz',questions:[
+        {q:'ขั้นตอนแรกของการตรวจรับรถ PDI คืออะไร?',opts:['ตรวจสภาพตัวถัง','ตรวจสอบเอกสารและ VIN','เปิดฝากระโปรง','ทดสอบเบรก'],ans:1},
+        {q:'NC ย่อมาจากอะไร?',opts:['Normal Check','Non-Conformance','New Car','None Complete'],ans:1},
+        {q:'เมื่อพบ NC ต้องทำอะไรก่อน?',opts:['แจ้งลูกค้า','บันทึก NC Tracker พร้อมรูป','ซ่อมเอง','รายงานปากเปล่า'],ans:1},
+        {q:'PDI ย่อมาจากอะไร?',opts:['Pre-Delivery Inspection','Post Delivery Install','Pre-Drive Inspection','Product Detail Info'],ans:0},
+      ]}
+    ]
+  },
+  {
+    id:'ISO-001',title:'ISO 9001:2015 พื้นฐาน',icon:'ti-certificate',color:'#185FA5',
+    hours:2,dept:'ทุกแผนก',deadline:'ไม่มีกำหนด',
+    modules:[
+      {id:'m1',title:'ISO 9001:2015 คืออะไร?',type:'content',slides:[
+        {title:'มาตรฐาน ISO 9001:2015',body:'มาตรฐานระบบบริหารคุณภาพระดับสากล ใช้แสดงว่าองค์กรมีระบบบริหารคุณภาพที่ดี',media:null},
+        {title:'หลักการ 7 ข้อ',body:'1.มุ่งเน้นลูกค้า 2.ภาวะผู้นำ 3.การมีส่วนร่วม 4.แนวทางกระบวนการ 5.ปรับปรุงต่อเนื่อง 6.ตัดสินใจโดยหลักฐาน 7.บริหารความสัมพันธ์',media:null},
+      ]},
+      {id:'m2',title:'แบบทดสอบ ISO',type:'quiz',questions:[
+        {q:'ISO 9001:2015 เกี่ยวกับเรื่องใด?',opts:['ความปลอดภัย','ระบบบริหารคุณภาพ','สิ่งแวดล้อม','การเงิน'],ans:1},
+        {q:'ISO 9001:2015 มีหลักการกี่ข้อ?',opts:['5','6','7','8'],ans:2},
+      ]}
+    ]
+  }
+];
+
+// โหลด COURSES จาก localStorage — modules จาก HR เป็น source of truth
+function loadCoursesFromStorage(){
+  var stored = JSON.parse(localStorage.getItem('sml_courses') || 'null');
+  if(!stored || !stored.length) return COURSES_DEFAULT;
+  return stored.map(function(sc){
+    var def = COURSES_DEFAULT.find(function(d){return d.id===sc.id;});
+    // ถ้า HR เพิ่ม modules ไว้ใน stored → ใช้เลย (source of truth)
+    // ถ้าไม่มี → ใช้จาก default ถ้ามี หรือสร้าง placeholder
+    var modules;
+    if(sc.modules && sc.modules.length){
+      modules = sc.modules;
+    } else if(def && def.modules && def.modules.length){
+      modules = def.modules;
+    } else {
+      modules = [{
+        id:'m1', title:'เนื้อหา '+(sc.title||''), type:'content',
+        slides:[{title:sc.title||'หลักสูตรใหม่', body:'HR กำลังเพิ่มเนื้อหา กรุณารอหรือติดต่อ HR', media:null}]
+      }];
+    }
+    return {
+      id:       sc.id,
+      title:    sc.title    || (def&&def.title)    || 'หลักสูตรใหม่',
+      icon:     sc.icon     || (def&&def.icon)     || 'ti-book',
+      color:    sc.color    || (def&&def.color)    || '#5B3FC8',
+      hours:    sc.hours    || (def&&def.hours)    || 2,
+      dept:     sc.dept     || (def&&def.dept)     || 'ทุกแผนก',
+      deadline: sc.deadline || (def&&def.deadline) || '',
+      pass:     sc.pass     || (def&&def.pass)     || 80,
+      modules:  modules
+    };
+  });
+}
+
+var COURSES = loadCoursesFromStorage();
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var user=null,progress={},curCourse=null,curModule=null,curSlide=0;
+var qCur=0,qSel=-1,qAnswered=false,qScore=0,lastSync=null;
+// Demo employees for login verification
+var DEMO_EMPLOYEES=[
+  {id:'SML-001',name:'สมชาย ใจดี',dept:'ปฏิบัติการ PDI',pos:'พนักงาน',pass:'1234'},
+  {id:'SML-002',name:'สวรรยา พงษ์ดี',dept:'Transportation',pos:'พนักงาน',pass:'1234'},
+  {id:'SML-003',name:'ธนพล รัตนชัย',dept:'ปฏิบัติการ PDI',pos:'พนักงาน',pass:'1234'},
+  {id:'SML-004',name:'มณีรัตน์ สมบูรณ์',dept:'Yard Management',pos:'พนักงาน',pass:'1234'},
+  {id:'SML-005',name:'วิชัย สุขใจ',dept:'HR & GA',pos:'HR Officer',pass:'hr2569'},
+];
+var employeeList=DEMO_EMPLOYEES;
+
+// ═══════════════════════════════════════════
+// LOCAL STORAGE
+// ═══════════════════════════════════════════
+function saveLocal(){localStorage.setItem('sml_user',JSON.stringify(user));localStorage.setItem('sml_progress',JSON.stringify(progress));localStorage.setItem('sml_sync',lastSync);}
+function loadLocal(){try{var u=localStorage.getItem('sml_user');var p=localStorage.getItem('sml_progress');var s=localStorage.getItem('sml_sync');if(u)user=JSON.parse(u);if(p)progress=JSON.parse(p);if(s)lastSync=s;}catch(e){}}
+
+// ═══════════════════════════════════════════
+// JSONP HELPER
+// ═══════════════════════════════════════════
+function fetchJSONP(url,cb){
+  var cbName='_smlcb_'+Date.now();
+  var script=document.createElement('script');
+  var timer=setTimeout(function(){cleanup();cb(null,'timeout');},8000);
+  window[cbName]=function(data){cleanup();cb(data,null);};
+  script.onerror=function(){cleanup();cb(null,'network error');};
+  script.src=url+(url.includes('?')?'&':'?')+'callback='+cbName;
+  document.head.appendChild(script);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+}
+
+// ═══════════════════════════════════════════
+// LOAD ALL DATA FROM SHEETS
+// ═══════════════════════════════════════════
+function loadFromSheets(empId, cb){
+  if(!GAS_URL){cb();return;}
+  fetchJSONP(GAS_URL+'?type=all&empId='+encodeURIComponent(empId), function(res,err){
+    if(err||!res||res.status!=='ok'){cb();return;}
+    var d=res.data||{};
+
+    // ── Employees ──
+    if(d.employees&&d.employees.length){
+      employeeList=d.employees.map(function(e){return{
+        id:e.EmployeeID||e.id,name:e.EmployeeName||e.name,
+        dept:e.Department||e.dept,pos:e.Position||e.pos,
+        pass:e.Password||e.pass,status:e.Status||e.status||'active'
+      };});
+      localStorage.setItem('sml_employees_cache',JSON.stringify(employeeList));
+    }
+
+    // ── Courses ──
+    if(d.courses&&d.courses.length){
+      COURSES=d.courses.map(function(sc){
+        var def=COURSES_DEFAULT.find(function(x){return x.id===(sc.CourseID||sc.id);});
+        // parse modules จาก Sheets ก่อน — ถ้ามีและไม่ว่าง ใช้เลย (source of truth)
+        var sheetsModules=null;
+        var rawMods=sc.modules||sc.Modules||'';
+        if(rawMods&&rawMods!=='[]'){
+          try{sheetsModules=JSON.parse(rawMods);}catch(e){}
+        }
+        var modules = sheetsModules && sheetsModules.length ? sheetsModules
+                    : def && def.modules && def.modules.length ? def.modules
+                    : [];
+        return{
+          id:sc.CourseID||sc.id||'',
+          title:sc.Title||sc.title||'',
+          icon:sc.Icon||sc.icon||'ti-book',
+          color:sc.Color||sc.color||'#5B3FC8',
+          hours:parseFloat(sc.Hours||sc.hours)||2,
+          dept:sc.Dept||sc.dept||'ทุกแผนก',
+          deadline:sc.Deadline||sc.deadline||'',
+          pass:parseInt(sc.PassScore||sc.pass)||80,
+          modules:modules
+        };
+      });
+      // บันทึกทั้ง metadata และ modules ลง localStorage
+      localStorage.setItem('sml_courses',JSON.stringify(COURSES.map(function(c){
+        return{id:c.id,title:c.title,type:c.type||'',hours:c.hours,dept:c.dept,deadline:c.deadline,color:c.color,icon:c.icon,pass:c.pass,modules:c.modules};
+      })));
+    }
+
+    // ── Assignments ──
+    if(d.assignments)localStorage.setItem('sml_assign',JSON.stringify(d.assignments));
+
+    // ── Optional ──
+    if(d.optional&&d.optional.length)localStorage.setItem('sml_optional_courses',JSON.stringify(d.optional));
+
+    // ── Progress ──
+    if(d.progress&&Object.keys(d.progress).length){
+      var localProg=JSON.parse(localStorage.getItem('sml_progress')||'{}');
+      if(!localProg[empId])localProg[empId]={};
+      Object.keys(d.progress).forEach(function(cid){
+        if(!localProg[empId][cid])localProg[empId][cid]={};
+        Object.keys(d.progress[cid]).forEach(function(mid){
+          var sp=d.progress[cid][mid];
+          localProg[empId][cid][mid]=Object.assign(localProg[empId][cid][mid]||{},{
+            done:sp.done===true||sp.Done===true||sp.done==='TRUE',
+            slideIdx:parseInt(sp.slideIdx||sp.SlideIdx)||0,
+            score:sp.score||sp.Score||''
+          });
+        });
+      });
+      progress=localProg;
+      localStorage.setItem('sml_progress',JSON.stringify(progress));
+    }
+    // reload COURSES จาก localStorage ที่ sync มาแล้ว เพื่อให้ modules อัปเดต
+    COURSES = loadCoursesFromStorage();
+    cb();
+  });
+}
+
+// ═══════════════════════════════════════════
+// LOAD EMPLOYEES FROM SHEETS (via GAS)
+// ═══════════════════════════════════════════
+function loadEmployees(cb){
+  var cached=JSON.parse(localStorage.getItem('sml_employees_cache')||'null');
+  if(cached&&cached.length){employeeList=cached;cb(employeeList);return;}
+  if(!GAS_URL||GAS_URL===''){cb(DEMO_EMPLOYEES);return;}
+  fetchJSONP(GAS_URL+'?type=employees', function(res,err){
+    if(err||!res||res.status!=='ok'){cb(DEMO_EMPLOYEES);return;}
+    var d=res.data||[];
+    if(Array.isArray(d)&&d.length){
+      employeeList=d.map(function(e){return{id:e.EmployeeID||e.id,name:e.EmployeeName||e.name,dept:e.Department||e.dept,pos:e.Position||e.pos,pass:e.Password||e.pass};});
+      localStorage.setItem('sml_employees_cache',JSON.stringify(employeeList));
+      cb(employeeList);
+    } else {cb(DEMO_EMPLOYEES);}
+  });
+}
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+function doLogin(){
+  var id=document.getElementById('li-id').value.trim();
+  var pass=document.getElementById('li-pass').value;
+  if(!id||!pass){document.getElementById('login-err').style.display='block';return;}
+  document.getElementById('login-err').style.display='none';
+  // แสดง loading
+  var btn=document.querySelector('.btn-f.btn-p');
+  var origHTML=btn.innerHTML;
+  btn.innerHTML='<i class="ti ti-loader" style="font-size:17px;animation:spin 1s linear infinite"></i>กำลังเข้าสู่ระบบ...';
+  btn.disabled=true;
+  loadEmployees(function(list){
+    btn.innerHTML=origHTML;btn.disabled=false;
+    var emp=list.find(function(e){return String(e.id).trim()===id&&String(e.pass).trim()===pass;});
+    if(!emp){document.getElementById('login-err').style.display='block';return;}
+    user={id:emp.id,name:emp.name,dept:emp.dept,pos:emp.pos};
+    if(!progress[id])progress[id]={};
+    saveLocal();
+    // โหลดข้อมูลทั้งหมดจาก Sheets (courses, assignments, progress)
+    btn.innerHTML='<i class="ti ti-loader" style="font-size:17px;animation:spin 1s linear infinite"></i>กำลังโหลดข้อมูล...';
+    loadFromSheets(id, function(){
+      btn.innerHTML=origHTML;btn.disabled=false;
+      syncToSheets('login',{});
+      initUI();
+    });
+  });
+}
+
+function doLogout(){user=null;go('login');document.getElementById('bottom-nav').style.display='none';}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function initUI(){
+  if(!user)return;
+  var init=user.name.substring(0,2);
+  document.getElementById('top-av').textContent=init;
+  document.getElementById('prof-av').textContent=init;
+  document.getElementById('notif-dot').style.display='block';
+  document.getElementById('bottom-nav').style.display='flex';
+  document.getElementById('prof-name').textContent=user.name;
+  document.getElementById('prof-dept').textContent=user.dept+' · '+user.id;
+  document.getElementById('h-name').textContent='สวัสดี, '+user.name.split(' ')[0];
+  document.getElementById('h-dept').textContent=user.dept+' · '+user.id;
+  renderCourses();renderHome();renderCerts();renderProfile();
+  go('home');
+}
+
+// ═══════════════════════════════════════════
+// PROGRESS HELPERS
+// ═══════════════════════════════════════════
+function getMP(cid,mid){return(progress[user.id]&&progress[user.id][cid]&&progress[user.id][cid][mid])||{};}
+function setMP(cid,mid,data){
+  if(!progress[user.id])progress[user.id]={};
+  if(!progress[user.id][cid])progress[user.id][cid]={};
+  progress[user.id][cid][mid]=Object.assign(progress[user.id][cid][mid]||{},data);
+  saveLocal();
+  syncProgressToSheets(cid,mid,progress[user.id][cid][mid]);
+}
+function isDone(cid,mid){return getMP(cid,mid).done===true;}
+function isUnlocked(course,i){return i===0||isDone(course.id,course.modules[i-1].id);}
+function coursePct(c){var d=0;c.modules.forEach(function(m){if(isDone(c.id,m.id))d++;});return Math.round(d/c.modules.length*100);}
+
+// ─── deadline helpers ───
+// deadline อาจเป็น ISO "2026-06-30" หรือ string ไทย "30 มิ.ย. 2569"
+function parseDL(dl){
+  if(!dl||dl==='ไม่มีกำหนด'||dl===''||dl==='undefined')return null;
+  // ISO format YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(dl))return new Date(dl);
+  // mm/dd/yyyy
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dl)){var p=dl.split('/');return new Date(p[2],p[0]-1,p[1]);}
+  return null;
+}
+function dlDiffDays(dl){
+  var d=parseDL(dl);if(!d||isNaN(d))return null;
+  return Math.ceil((d-new Date())/(1000*60*60*24));
+}
+function dlLabel(dl){
+  var diff=dlDiffDays(dl);
+  if(diff===null)return '';
+  if(diff<0)return '<span style="font-size:10px;color:var(--r)">⏰ เกิน '+Math.abs(diff)+' วัน</span>';
+  if(diff===0)return '<span style="font-size:10px;color:var(--r)">⏰ วันนี้!</span>';
+  if(diff<=7)return '<span style="font-size:10px;color:var(--a)">⏰ อีก '+diff+' วัน</span>';
+  return '<span style="font-size:10px;color:var(--g400)">⏰ อีก '+diff+' วัน</span>';
+}
+
+// ─── assignment helpers ───
+function getAssignedCourses(){
+  if(!user)return{required:[],deadlines:{}};
+  var data=JSON.parse(localStorage.getItem('sml_assign')||'{}');
+  var ea=data[user.id];
+  if(!ea){
+    // fallback: dept match
+    var req=COURSES.filter(function(c){return c.dept==='ทุกแผนก'||c.dept===user.dept;}).map(function(c){return c.id;});
+    return{required:req,deadlines:{}};
+  }
+  return ea;
+}
+function getOptionalCourses(){
+  var optIds=JSON.parse(localStorage.getItem('sml_optional_courses')||'[]');
+  var assigned=getAssignedCourses().required;
+  return COURSES.filter(function(c){return optIds.indexOf(c.id)>-1&&assigned.indexOf(c.id)===-1;});
+}
+function getEnrolledOptional(){
+  if(!user)return[];
+  return JSON.parse(localStorage.getItem('sml_enrolled_'+user.id)||'[]');
+}
+function enrollOptional(cid){
+  var e=getEnrolledOptional();
+  if(e.indexOf(cid)===-1){e.push(cid);localStorage.setItem('sml_enrolled_'+user.id,JSON.stringify(e));}
+}
+function unenrollOptional(cid){
+  var e=getEnrolledOptional().filter(function(id){return id!==cid;});
+  localStorage.setItem('sml_enrolled_'+user.id,JSON.stringify(e));
+}
+
+function overallPct(){
+  var assigned=getAssignedCourses();
+  var enrolled=getEnrolledOptional();
+  var myIds=assigned.required.slice();
+  enrolled.forEach(function(id){if(myIds.indexOf(id)===-1)myIds.push(id);});
+  var myCourses=COURSES.filter(function(c){return myIds.indexOf(c.id)>-1;});
+  if(!myCourses.length){
+    // fallback นับทั้งหมด
+    var t=0,d=0;COURSES.forEach(function(c){c.modules.forEach(function(m){t++;if(isDone(c.id,m.id))d++;});});
+    return t?Math.round(d/t*100):0;
+  }
+  var t=0,d=0;
+  myCourses.forEach(function(c){c.modules.forEach(function(m){t++;if(isDone(c.id,m.id))d++;});});
+  return t?Math.round(d/t*100):0;
+}
+
+// ═══════════════════════════════════════════
+// RENDER HOME
+// ═══════════════════════════════════════════
+function renderHome(){
+  var pct=overallPct();
+  document.getElementById('h-pct').textContent=pct+'%';
+  document.getElementById('h-bar').style.width=pct+'%';
+  var assigned=getAssignedCourses();
+  var enrolled=getEnrolledOptional();
+  var myIds=assigned.required.slice();
+  enrolled.forEach(function(id){if(myIds.indexOf(id)===-1)myIds.push(id);});
+  var myCourses=COURSES.filter(function(c){return myIds.indexOf(c.id)>-1;});
+  if(!myCourses.length)myCourses=COURSES; // fallback
+  var done=0,prog=0,todo=0;
+  myCourses.forEach(function(c){var p=coursePct(c);if(p===100)done++;else if(p>0)prog++;else todo++;});
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-prog').textContent=prog;
+  document.getElementById('st-todo').textContent=todo;
+  updateSyncBar('ok');
+  renderNotifs();
+  var r='';
+  myCourses.forEach(function(c){var p=coursePct(c);if(p>0&&p<100){r+='<div class="crs-card" onclick="openCourse(\''+c.id+'\')" style="margin-bottom:9px"><div class="crs-icon" style="background:'+c.color+'"><i class="ti '+c.icon+'"></i></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;margin-bottom:2px">'+c.title+'</div><div style="font-size:11px;color:var(--g400);margin-bottom:5px">'+p+'% · เรียนต่อได้เลย</div><div class="prog-bar"><div class="prog-fill pf-p" style="width:'+p+'%"></div></div></div><i class="ti ti-chevron-right" style="font-size:17px;color:var(--g400)"></i></div>';}});
+  document.getElementById('resume-area').innerHTML=r||'<div style="font-size:12px;color:var(--g400);text-align:center;padding:14px">ยังไม่มีหลักสูตรค้างไว้</div>';
+}
+
+function updateSyncBar(s){
+  var dot=document.getElementById('sdot2');
+  dot.className='sdot2 '+(s==='ok'?'sd-ok':s==='wait'?'sd-wait':'sd-err');
+  if(s==='ok'&&lastSync){var el=document.getElementById('sync-time');if(el)el.textContent=lastSync;}
+}
+
+// ═══════════════════════════════════════════
+// RENDER COURSES
+// ═══════════════════════════════════════════
+function renderCourses(){
+  var assigned=getAssignedCourses();
+  var reqIds=assigned.required;
+  var deadlines=assigned.deadlines||{};
+  var enrolled=getEnrolledOptional();
+
+  var html='';
+
+  // ─ บังคับเรียน ─
+  var reqCourses=COURSES.filter(function(c){return reqIds.indexOf(c.id)>-1;});
+  if(reqCourses.length){
+    html+='<div style="font-size:12px;font-weight:700;color:var(--r);margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="ti ti-pin" style="font-size:14px"></i> หลักสูตรที่ต้องเรียน</div>';
+    reqCourses.forEach(function(c){
+      var p=coursePct(c);
+      var badge=p===100?'<span class="badge b-done">ผ่านแล้ว</span>':p>0?'<span class="badge b-prog">กำลังเรียน</span>':'<span class="badge b-late">ยังไม่เริ่ม</span>';
+      // deadline: ใช้ที่ HR กำหนดรายคนก่อน ถ้าไม่มีใช้ของ course
+      var dl=deadlines[c.id]||c.deadline||'';
+      var dlHtml=dl&&dl!=='ไม่มีกำหนด'?dlLabel(dl):'';
+      html+='<div class="crs-card" onclick="openCourse(\''+c.id+'\')">'+
+        '<div class="crs-icon" style="background:'+c.color+'"><i class="ti '+c.icon+'"></i></div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:600;margin-bottom:2px">'+c.title+'</div>'+
+          '<div style="font-size:11px;color:var(--g400);margin-bottom:4px">'+c.hours+' ชม. · '+c.modules.length+' modules'+(dlHtml?' &nbsp;'+dlHtml:'')+'</div>'+
+          '<div class="prog-bar"><div class="prog-fill pf-p" style="width:'+p+'%"></div></div>'+
+        '</div>'+badge+
+      '</div>';
+    });
+  }
+
+  // ─ เลือกเสริม (enrolled) ─
+  var enrolledCourses=COURSES.filter(function(c){return enrolled.indexOf(c.id)>-1&&reqIds.indexOf(c.id)===-1;});
+  if(enrolledCourses.length){
+    html+='<div style="font-size:12px;font-weight:700;color:#92400e;margin:14px 0 8px;display:flex;align-items:center;gap:5px"><i class="ti ti-star" style="font-size:14px;color:#F59E0B"></i> หลักสูตรที่เลือกเสริม</div>';
+    enrolledCourses.forEach(function(c){
+      var p=coursePct(c);
+      var badge=p===100?'<span class="badge b-done">ผ่านแล้ว</span>':p>0?'<span class="badge b-prog">กำลังเรียน</span>':'<span class="badge" style="background:#FEF3C7;color:#92400e">สมัครแล้ว</span>';
+      html+='<div class="crs-card" onclick="openCourse(\''+c.id+'\')">'+
+        '<div class="crs-icon" style="background:'+c.color+'"><i class="ti '+c.icon+'"></i></div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:600;margin-bottom:2px">'+c.title+'</div>'+
+          '<div style="font-size:11px;color:var(--g400);margin-bottom:4px">'+c.hours+' ชม. · '+c.modules.length+' modules</div>'+
+          '<div class="prog-bar"><div class="prog-fill pf-a" style="width:'+p+'%"></div></div>'+
+        '</div>'+badge+
+      '</div>';
+    });
+  }
+
+  if(!reqCourses.length&&!enrolledCourses.length){
+    html='<div style="text-align:center;padding:36px 20px;color:var(--g400)"><i class="ti ti-book-off" style="font-size:40px;display:block;margin-bottom:10px;opacity:.3"></i><div style="font-size:13px">ยังไม่มีหลักสูตรที่กำหนด</div><div style="font-size:11px;margin-top:4px">ติดต่อ HR เพื่อกำหนดหลักสูตร</div></div>';
+  }
+  document.getElementById('course-list').innerHTML=html;
+  renderOptionalCatalog();
+}
+
+// ─ catalog หลักสูตรเสริม ─
+function renderOptionalCatalog(){
+  var wrap=document.getElementById('optional-catalog');
+  if(!wrap)return;
+  var optCourses=getOptionalCourses();
+  var enrolled=getEnrolledOptional();
+  if(!optCourses.length){
+    wrap.innerHTML='<div style="text-align:center;padding:28px 16px;color:var(--g400)"><i class="ti ti-star-off" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i><div style="font-size:12px">ยังไม่มีหลักสูตรเสริมที่เปิดให้เลือก</div></div>';
+    return;
+  }
+  wrap.innerHTML=optCourses.map(function(c){
+    var isEnrolled=enrolled.indexOf(c.id)>-1;
+    var p=isEnrolled?coursePct(c):0;
+    return '<div class="crs-card" style="border-color:'+(isEnrolled?'#F59E0B':'var(--g100)')+'">'+
+      '<div class="crs-icon" style="background:'+c.color+'"><i class="ti '+c.icon+'"></i></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:600;margin-bottom:2px">'+c.title+'</div>'+
+        '<div style="font-size:11px;color:var(--g400);margin-bottom:4px">'+c.hours+' ชม. · '+c.modules.length+' modules</div>'+
+        (isEnrolled?'<div class="prog-bar"><div class="prog-fill pf-a" style="width:'+p+'%"></div></div>':'')+
+      '</div>'+
+      (isEnrolled?
+        '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">'+
+          '<button onclick="openCourse(\''+c.id+'\');event.stopPropagation()" style="font-size:11px;background:var(--p);color:#fff;border:none;cursor:pointer;padding:5px 10px;border-radius:7px;font-family:inherit;font-weight:600">เรียน</button>'+
+          '<button onclick="confirmUnenroll(\''+c.id+'\');event.stopPropagation()" style="font-size:10px;background:none;color:var(--g400);border:none;cursor:pointer;padding:0;font-family:inherit">ยกเลิก</button>'+
+        '</div>':
+        '<button onclick="enrollOptional(\''+c.id+'\');renderCourses();event.stopPropagation()" '+
+          'style="font-size:12px;background:#FEF3C7;color:#92400e;border:1.5px solid #F59E0B;cursor:pointer;padding:7px 12px;border-radius:8px;font-family:inherit;font-weight:600;white-space:nowrap;flex-shrink:0">'+
+          '⭐ สมัคร'+
+        '</button>')+
+    '</div>';
+  }).join('');
+}
+function confirmUnenroll(cid){
+  var c=COURSES.find(function(x){return x.id===cid;});
+  if(confirm('ยกเลิกการเรียน "'+(c?c.title:cid)+'" ?')){unenrollOptional(cid);renderCourses();}
+}
+
+// ═══════════════════════════════════════════
+// COURSE DETAIL
+// ═══════════════════════════════════════════
+function openCourse(cid){
+  curCourse=COURSES.find(function(c){return c.id===cid;});if(!curCourse)return;
+  var p=coursePct(curCourse);
+  document.getElementById('detail-hdr').innerHTML='<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px"><button style="background:none;color:#fff;font-size:19px;padding:0;cursor:pointer" onclick="go(\'courses\')"><i class="ti ti-arrow-left"></i></button><div style="font-size:14px;font-weight:700">'+curCourse.title+'</div></div><div style="font-size:11px;opacity:.6;margin-bottom:10px">'+curCourse.hours+' ชม. · กำหนด: '+curCourse.deadline+'</div><div style="display:flex;justify-content:space-between;font-size:11px;opacity:.7;margin-bottom:4px"><span>ความก้าวหน้า</span><span>'+p+'%</span></div><div style="height:5px;background:rgba(255,255,255,.2);border-radius:50px;overflow:hidden"><div style="height:100%;background:#fff;border-radius:50px;width:'+p+'%"></div></div>';
+  var mh='';
+  curCourse.modules.forEach(function(m,i){
+    var done=isDone(curCourse.id,m.id);
+    var unlocked=isUnlocked(curCourse,i);
+    var nc=done?'mn-d':unlocked?'mn-a':'mn-l';
+    var ni=done?'<i class="ti ti-check" style="font-size:13px"></i>':(i+1);
+    var li=!unlocked?'<i class="ti ti-lock" style="font-size:15px;color:var(--g400)"></i>':'<i class="ti ti-chevron-right" style="font-size:17px;color:var(--g400)"></i>';
+    var ic='mod-item'+(done?' done-m':unlocked?' active-m':' locked');
+    var oc=unlocked?'openModule(\''+curCourse.id+'\',\''+m.id+'\')':'';
+    var ti=m.type==='quiz'?'<i class="ti ti-help-circle" style="font-size:11px"></i> Quiz':'<i class="ti ti-book" style="font-size:11px"></i> เนื้อหา';
+    mh+='<div class="'+ic+'" onclick="'+oc+'"><div class="mod-num '+nc+'">'+ni+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div><div style="font-size:11px;color:var(--g400);margin-top:2px">'+ti+(done?' · ✓ ผ่านแล้ว':!unlocked?' · 🔒 ล็อค':'')+'</div></div>'+li+'</div>';
+  });
+  document.getElementById('module-list').innerHTML=mh;
+  go('detail');
+}
+
+function backToDetail(){if(curCourse)openCourse(curCourse.id);}
+
+// ═══════════════════════════════════════════
+// OPEN MODULE
+// ═══════════════════════════════════════════
+function openModule(cid,mid){
+  curCourse=COURSES.find(function(c){return c.id===cid;});
+  curModule=curCourse.modules.find(function(m){return m.id===mid;});
+  if(!curModule)return;
+  if(curModule.type==='quiz'){startQuiz();}
+  else{curSlide=getMP(cid,mid).slideIdx||0;renderSlide();go('content');}
+  syncToSheets('module_start',{courseId:cid,moduleName:curModule.title});
+}
+
+// ═══════════════════════════════════════════
+// CONTENT VIEWER
+// ═══════════════════════════════════════════
+
+// ── Video Resume helpers ──
+function getVideoKey(cid,mid,linkIdx){return 'sml_vid_'+user.id+'_'+cid+'_'+mid+'_'+linkIdx;}
+function saveVideoTime(cid,mid,linkIdx,sec){localStorage.setItem(getVideoKey(cid,mid,linkIdx),Math.floor(sec));}
+function loadVideoTime(cid,mid,linkIdx){return parseInt(localStorage.getItem(getVideoKey(cid,mid,linkIdx))||'0')||0;}
+
+// แปลง mm:ss → วินาที
+function tsToSec(ts){if(!ts)return 0;var p=ts.split(':');if(p.length===2)return parseInt(p[0]||0)*60+parseInt(p[1]||0);return parseInt(ts)||0;}
+
+// สร้าง embed URL จาก URL ดิบ + start/end + resume
+function buildEmbedUrl(rawUrl,startSec,endSec,resumeSec){
+  var start=Math.max(resumeSec||0, startSec||0);
+  // YouTube
+  var ytMatch=rawUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if(ytMatch){
+    var params='enablejsapi=1&rel=0&autoplay=1&start='+start;
+    if(endSec>0)params+='&end='+endSec;
+    return 'https://www.youtube.com/embed/'+ytMatch[1]+'?'+params;
+  }
+  // Google Drive
+  var gdMatch=rawUrl.match(/\/d\/([^/]+)\//);
+  if(gdMatch)return 'https://drive.google.com/file/d/'+gdMatch[1]+'/preview#t='+start;
+  // Generic — ใส่ #t= หวัง
+  return rawUrl+(rawUrl.includes('?')?'&':'?')+'t='+start;
+}
+
+function renderSlide(){
+  var slides=curModule.slides;
+  document.getElementById('cv-title').textContent=curModule.title;
+  var dots='';slides.forEach(function(s,i){dots+='<div class="sdot'+(i===curSlide?' active':'')+'" onclick="jumpSlide('+i+')"></div>';});
+  document.getElementById('slide-dots').innerHTML=dots;
+  var s=slides[curSlide];
+  var mediaHtml='';
+  if(s.media){
+    if(s.media==='video'){
+      // ดึง media metadata จาก MEDIA store (match ด้วย module)
+      mediaHtml=renderVideoLinks(curCourse.id,curModule.id);
+    } else {
+      var mi={slides:'ti-file-type-ppt',pdf:'ti-file-type-pdf'};
+      mediaHtml='<div class="slide-media" onclick="alert(\'เปิดสื่อ: '+s.media+'\')"><i class="ti '+(mi[s.media]||'ti-file')+'"></i><span>แตะเพื่อเปิด'+({slides:'สไลด์',pdf:'PDF'}[s.media]||s.media)+'</span></div>';
+    }
+  }
+  document.getElementById('slide-area').innerHTML='<div class="slide"><div class="slide-num">สไลด์ '+(curSlide+1)+' / '+slides.length+'</div><div class="slide-title">'+s.title+'</div><div class="slide-body">'+s.body.replace(/\n/g,'<br>')+'</div>'+mediaHtml+'</div>';
+  document.getElementById('btn-prev').style.opacity=curSlide===0?'.4':'1';
+  document.getElementById('btn-prev').disabled=curSlide===0;
+  var isLast=curSlide===slides.length-1;
+  document.getElementById('content-action').innerHTML=isLast?'<button class="btn-f btn-g" onclick="completeContent()"><i class="ti ti-check"></i>เรียนจบ — ถัดไป</button>':'<button class="btn-f btn-p" onclick="nextSlide()"><i class="ti ti-arrow-right"></i>สไลด์ถัดไป</button>';
+  setMP(curCourse.id,curModule.id,{slideIdx:curSlide});
+}
+
+function renderVideoLinks(cid,mid){
+  // ลองหา media จาก localStorage (admin บันทึก)
+  var allMedia=JSON.parse(localStorage.getItem('sml_media')||'null')||[];
+  var matched=allMedia.filter(function(m){return m.type==='วิดีโอ'&&m.cid===cid;});
+  if(!matched.length){
+    // fallback — placeholder
+    return '<div class="slide-media" style="cursor:default;flex-direction:column;gap:6px">'+
+      '<i class="ti ti-video" style="font-size:32px;color:rgba(255,255,255,.7)"></i>'+
+      '<span style="font-size:12px;color:rgba(255,255,255,.8)">ยังไม่มีวิดีโอที่ลิงก์ — HR กำลังเพิ่ม</span></div>';
+  }
+  var html='<div style="margin-top:10px">';
+  matched.forEach(function(m){
+    var links=m.links||(m.url?[{label:m.name,url:m.url,start:'',end:''}]:[]);
+    html+='<div style="background:var(--g50);border:1px solid var(--g100);border-radius:11px;padding:10px 12px;margin-bottom:10px">'+
+      '<div style="font-size:12px;font-weight:600;color:var(--g900);margin-bottom:8px">🎬 '+m.name+'</div>';
+    links.forEach(function(l,li){
+      var startSec=tsToSec(l.start);
+      var endSec=tsToSec(l.end);
+      var resumeSec=loadVideoTime(cid,mid,li);
+      var embedUrl=buildEmbedUrl(l.url,startSec,endSec,resumeSec);
+      var tsLabel=(l.start?'▶ '+l.start:'')+((l.start&&l.end)?' – ':'')+((l.end)?l.end+' ⏹':'');
+      var resumeLabel=resumeSec>60?'ดูต่อที่ '+Math.floor(resumeSec/60)+':'+String(resumeSec%60).padStart(2,'0'):'';
+      html+='<div style="margin-bottom:10px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+          '<div style="font-size:12px;font-weight:500">'+l.label+
+            (tsLabel?'<span style="font-size:10px;color:var(--g400);margin-left:6px">'+tsLabel+'</span>':'')+
+          '</div>'+
+          (resumeLabel?'<span style="font-size:10px;color:var(--t);background:var(--tl);padding:2px 7px;border-radius:50px">🔄 '+resumeLabel+'</span>':'')+
+        '</div>'+
+        buildVideoEmbed(embedUrl,cid,mid,li,endSec)+
+      '</div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
+function buildVideoEmbed(embedUrl,cid,mid,li,endSec){
+  var iframeId='vid-'+cid+'-'+mid+'-'+li;
+  // ถ้า URL เปิด embed ได้ → แสดง iframe
+  // บันทึก time ทุก 5 วินาที ผ่าน postMessage (YouTube API)
+  return '<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:9px;overflow:hidden;background:#000">'+
+    '<iframe id="'+iframeId+'" src="'+embedUrl+'" style="position:absolute;inset:0;width:100%;height:100%;border:none" allow="autoplay; fullscreen" allowfullscreen '+
+      'onload="startTrackVideo(\''+iframeId+'\',\''+cid+'\',\''+mid+'\','+li+','+endSec+')">'+
+    '</iframe>'+
+  '</div>'+
+  '<div style="display:flex;gap:6px;margin-top:6px">'+
+    (endSec>0?'':'')+ // สงวนไว้
+    '<button onclick="resetVideoResume(\''+cid+'\',\''+mid+'\','+li+')" style="font-size:11px;color:var(--g400);background:none;border:none;cursor:pointer;padding:2px 6px"><i class="ti ti-rotate-clockwise" style="font-size:12px"></i> เริ่มใหม่</button>'+
+    '<a href="'+embedUrl.split('?')[0]+'" target="_blank" style="font-size:11px;color:var(--p);text-decoration:none;padding:2px 6px"><i class="ti ti-external-link" style="font-size:11px"></i> เปิดแบบเต็ม</a>'+
+  '</div>';
+}
+
+// ─ track video time ผ่าน YouTube postMessage API ─
+var _vidTrackers={};
+function startTrackVideo(iframeId,cid,mid,li,endSec){
+  // บันทึก resume ทุก 5 วินาที ผ่าน window.message
+  if(_vidTrackers[iframeId])clearInterval(_vidTrackers[iframeId]);
+  _vidTrackers[iframeId]=setInterval(function(){
+    var iframe=document.getElementById(iframeId);
+    if(!iframe)return;
+    try{iframe.contentWindow.postMessage('{"event":"listening"}','*');}catch(e){}
+  },5000);
+}
+
+window.addEventListener('message',function(e){
+  try{
+    var d=typeof e.data==='string'?JSON.parse(e.data):e.data;
+    if(d&&d.event==='infoDelivery'&&d.info&&d.info.currentTime){
+      // หา iframe ที่ match
+      var iframes=document.querySelectorAll('iframe[id^="vid-"]');
+      iframes.forEach(function(f){
+        if(f.contentWindow===e.source){
+          var parts=f.id.split('-');// vid-cid-mid-li
+          if(parts.length>=4){
+            var cid=parts[1],mid=parts[2],li=parseInt(parts[3]);
+            saveVideoTime(cid,mid,li,d.info.currentTime);
+          }
+        }
+      });
+    }
+  }catch(ex){}
+});
+
+function resetVideoResume(cid,mid,li){
+  localStorage.removeItem(getVideoKey(cid,mid,li));
+  // re-render slide เพื่อโหลด iframe ใหม่ตั้งแต่ต้น (หรือ start)
+  renderSlide();
+}
+
+function nextSlide(){if(curSlide<curModule.slides.length-1){curSlide++;renderSlide();}}
+function prevSlide(){if(curSlide>0){curSlide--;renderSlide();}}
+function jumpSlide(i){curSlide=i;renderSlide();}
+
+function completeContent(){
+  setMP(curCourse.id,curModule.id,{done:true,slideIdx:curModule.slides.length-1});
+  syncToSheets('module_complete',{courseId:curCourse.id,moduleName:curModule.title,type:'content'});
+  renderCourses();renderHome();openCourse(curCourse.id);
+}
+
+// ═══════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════
+function startQuiz(){
+  qCur=0;qSel=-1;qAnswered=false;qScore=0;
+  document.getElementById('qz-title').textContent=curCourse.title;
+  document.getElementById('qz-sub').textContent=curModule.title;
+  renderQQ();
+  document.getElementById('qz-footer').innerHTML='<button class="btn-f btn-o" onclick="skipQ()" style="flex:.4"><i class="ti ti-arrow-right"></i>ข้าม</button><button class="btn-f btn-p" id="q-next" onclick="nextQ()" style="flex:.6;opacity:.4" disabled><i class="ti ti-arrow-right"></i>ถัดไป</button>';
+  go('quiz');
+}
+
+function renderQQ(){
+  var qs=curModule.questions;var q=qs[qCur];var letters=['A','B','C','D'];
+  document.getElementById('qnum').textContent=(qCur+1)+'/'+qs.length;
+  document.getElementById('qbar').style.width=(((qCur+1)/qs.length)*100)+'%';
+  var html='<div class="q-text">'+q.q+'</div><div class="q-options">';
+  q.opts.forEach(function(o,i){html+='<button class="q-opt" id="qo'+i+'" onclick="selOpt('+i+')"><div class="q-opt-l">'+letters[i]+'</div><div class="q-opt-text">'+o+'</div></button>';});
+  html+='</div>';
+  document.getElementById('quiz-body').innerHTML=html;
+  qSel=-1;qAnswered=false;
+  var nb=document.getElementById('q-next');if(nb){nb.disabled=true;nb.style.opacity='.4';}
+}
+
+function selOpt(i){if(qAnswered)return;qSel=i;document.querySelectorAll('.q-opt').forEach(function(o){o.classList.remove('sel');});var el=document.getElementById('qo'+i);if(el)el.classList.add('sel');var nb=document.getElementById('q-next');if(nb){nb.disabled=false;nb.style.opacity='1';}}
+
+function nextQ(){
+  if(qSel<0)return;qAnswered=true;
+  var q=curModule.questions[qCur];
+  document.querySelectorAll('.q-opt').forEach(function(o,i){if(i===q.ans)o.classList.add('correct');else if(i===qSel&&qSel!==q.ans)o.classList.add('wrong');o.classList.remove('sel');});
+  if(qSel===q.ans)qScore++;
+  var nb=document.getElementById('q-next');
+  if(nb){nb.innerHTML='<i class="ti ti-arrow-right" style="font-size:17px"></i>ต่อไป';nb.onclick=function(){qCur++;if(qCur>=curModule.questions.length){showResult();return;}renderQQ();nb.innerHTML='<i class="ti ti-arrow-right" style="font-size:17px"></i>ถัดไป';nb.onclick=nextQ;};}
+}
+
+function skipQ(){qCur++;if(qCur>=curModule.questions.length){showResult();return;}renderQQ();}
+
+function showResult(){
+  var total=curModule.questions.length;var pct=Math.round(qScore/total*100);var pass=pct>=80;
+  if(pass){setMP(curCourse.id,curModule.id,{done:true,score:pct});syncToSheets('quiz_pass',{courseId:curCourse.id,moduleName:curModule.title,score:pct,passFail:'ผ่าน'});renderCourses();renderHome();renderCerts();renderProfile();}
+  else{syncToSheets('quiz_fail',{courseId:curCourse.id,moduleName:curModule.title,score:pct,passFail:'ไม่ผ่าน'});}
+  document.getElementById('quiz-body').innerHTML='<div class="result-wrap"><div class="rc '+(pass?'rc-pass':'rc-fail')+'">'+pct+'%</div><div style="font-size:17px;font-weight:700;margin-bottom:5px">'+(pass?'ผ่านแล้ว!':'ยังไม่ผ่าน')+'</div><div style="font-size:13px;color:var(--g400);margin-bottom:20px">ตอบถูก '+qScore+'/'+total+' ข้อ</div>'+(pass?'<div class="alert al-g"><i class="ti ti-database" style="font-size:16px"></i><div><div class="alert-t">บันทึกไปยัง Google Sheets แล้ว</div><div class="alert-s">HR สามารถดู progress ของคุณได้แล้ว</div></div></div>':'<div class="alert al-r"><i class="ti ti-refresh" style="font-size:16px"></i><div><div class="alert-t">ต้องได้ 80% ขึ้นไป</div><div class="alert-s">กลับทบทวนแล้วลองใหม่</div></div></div>')+'</div>';
+  document.getElementById('qz-footer').innerHTML='<button class="btn-f '+(pass?'btn-g':'btn-o')+'" onclick="'+(pass?'openCourse(\''+curCourse.id+'\')':'backToDetail()')+'">'+( pass?'<i class="ti ti-arrow-right"></i>ต่อหลักสูตร':'<i class="ti ti-arrow-left"></i>กลับ')+'</button>';
+}
+
+// ═══════════════════════════════════════════
+// CERTS
+// ═══════════════════════════════════════════
+function renderCerts(){
+  var html='';
+  COURSES.forEach(function(c){if(coursePct(c)===100){html+='<div class="cert-card"><div class="cert-ribbon"><i class="ti ti-award"></i></div><div style="font-size:13px;font-weight:600;margin-bottom:3px">'+c.title+'</div><div style="font-size:10px;opacity:.5;margin-bottom:10px">เลขที่: SML-2569-'+c.id+'</div><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:10px;opacity:.6">ออกให้</div><div style="font-size:12px;font-weight:500">'+user.name+'</div></div><span style="font-size:10px;padding:3px 9px;border-radius:50px;background:rgba(15,158,117,.25);color:#5DCCAB;font-weight:500">Active</span></div></div>';}});
+  document.getElementById('cert-list').innerHTML=html||'<div style="text-align:center;padding:36px;color:var(--g400)"><i class="ti ti-certificate" style="font-size:42px;display:block;margin-bottom:9px;opacity:.3"></i><div style="font-size:13px;font-weight:500">ยังไม่มีใบรับรอง</div><div style="font-size:12px;margin-top:4px">เรียนจบหลักสูตรเพื่อรับใบรับรอง</div></div>';
+}
+
+// ═══════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════
+function renderProfile(){
+  var certs=COURSES.filter(function(c){return coursePct(c)===100;}).length;
+  document.getElementById('pst-hrs').textContent=certs*2;
+  document.getElementById('pst-cert').textContent=certs;
+  document.getElementById('pst-crs').textContent=COURSES.length;
+  var ph=COURSES.map(function(c){var p=coursePct(c);var col=p===100?'pf-t':p>0?'pf-p':'pf-r';return'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+c.title+'</span><span style="font-weight:500">'+p+'%</span></div><div class="prog-bar"><div class="prog-fill '+col+'" style="width:'+p+'%"></div></div></div>';}).join('');
+  document.getElementById('prof-prog').innerHTML=ph;
+}
+
+// ═══════════════════════════════════════════
+// SYNC
+// ═══════════════════════════════════════════
+function syncToSheets(eventType,data){
+  if(!GAS_URL)return;
+  var payload=Object.assign({employeeId:user.id,employeeName:user.name,department:user.dept,timestamp:new Date().toISOString(),eventType:eventType},data);
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(){lastSync=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});saveLocal();updateSyncBar('ok');})
+    .catch(function(){updateSyncBar('wait');});
+}
+
+function syncProgressToSheets(cid,mid,data){
+  if(!GAS_URL)return;
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({
+    eventType:'save_progress',
+    employeeId:user.id,courseId:cid,moduleId:mid,
+    done:data.done||false,slideIdx:data.slideIdx||0,score:data.score||'',
+    timestamp:new Date().toISOString()
+  })}).catch(function(){});
+}
+
+
+// ═══════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════
+function getNotifs(){
+  if(!user)return[];
+  var notifs=[];
+  // ตรวจ deadline หลักสูตร
+  COURSES.forEach(function(c){
+    var p=coursePct(c);
+    if(p<100&&c.deadline&&c.deadline!=='ไม่มีกำหนด'){
+      var dl=parseDL(c.deadline);
+      if(dl&&!isNaN(dl)){
+        var today=new Date();
+        var diff=Math.ceil((dl-today)/(1000*60*60*24));
+        if(diff<0){
+          notifs.push({type:'late',icon:'ti-alert-circle',color:'var(--r)',bg:'var(--rl)',txt:c.title+' เกินกำหนดแล้ว!',sub:'ครบกำหนด '+c.deadline+' · ติดต่อ HR',cid:c.id});
+        } else if(diff<=7){
+          notifs.push({type:'warn',icon:'ti-clock',color:'var(--a)',bg:'var(--al)',txt:c.title+' ใกล้ครบกำหนด',sub:'เหลืออีก '+diff+' วัน · '+c.deadline,cid:c.id});
+        }
+      }
+    }
+    // ยังไม่เริ่มเรียน
+    if(p===0){
+      notifs.push({type:'info',icon:'ti-book',color:'var(--p)',bg:'var(--pl)',txt:'เริ่มเรียน: '+c.title,sub:c.hours+' ชม. · '+c.dept,cid:c.id});
+    }
+  });
+  // แจ้งเตือนเมื่อเรียนจบ
+  COURSES.forEach(function(c){
+    if(coursePct(c)===100){
+      notifs.push({type:'done',icon:'ti-certificate',color:'var(--t)',bg:'var(--tl)',txt:'ได้รับใบรับรอง: '+c.title,sub:'ยินดีด้วย! ผ่านครบทุก module',cid:c.id});
+    }
+  });
+  return notifs;
+}
+
+function renderNotifs(){
+  var notifs=getNotifs();
+  var html=notifs.length?notifs.map(function(n){
+    return '<div class="notif-item" onclick="handleNotifClick(this)" data-cid="'+n.cid+'">'+
+      '<div class="notif-dot-wrap" style="background:'+n.bg+'"><i class="ti '+n.icon+'" style="font-size:18px;color:'+n.color+'"></i></div>'+
+      '<div><div class="notif-txt">'+n.txt+'</div><div class="notif-sub">'+n.sub+'</div></div>'+
+      '</div>';
+  }).join('') : '<div style="text-align:center;padding:30px;color:var(--g400)"><i class="ti ti-bell-off" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3"></i><div style="font-size:13px">ไม่มีการแจ้งเตือน</div></div>';
+  document.getElementById('notif-list').innerHTML=html;
+  // update dot
+  var dot=document.getElementById('notif-dot');
+  var hasAlert=notifs.some(function(n){return n.type==='late'||n.type==='warn';});
+  if(dot)dot.style.display=hasAlert?'block':'none';
+}
+
+function handleNotifClick(el){
+  closeNotif();
+  var cid=el.getAttribute('data-cid');
+  if(cid)openCourse(cid);
+}
+
+function toggleNotif(){
+  var overlay=document.getElementById('notif-overlay');
+  if(overlay.classList.contains('open')){overlay.classList.remove('open');}
+  else{renderNotifs();overlay.classList.add('open');}
+}
+
+function closeNotif(){
+  document.getElementById('notif-overlay').classList.remove('open');
+}
+
+function clearNotifs(){
+  document.getElementById('notif-list').innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)"><i class="ti ti-bell-off" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3"></i><div style="font-size:13px">ไม่มีการแจ้งเตือน</div></div>';
+  var dot=document.getElementById('notif-dot');if(dot)dot.style.display='none';
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+var screens=['login','home','courses','detail','content','quiz','certs','profile'];
+function go(id){
+  screens.forEach(function(s){var el=document.getElementById('s-'+s);if(el)el.classList.toggle('active',s===id);var nav=document.getElementById('nav-'+s);if(nav)nav.classList.toggle('active',s===id);});
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+loadLocal();
+if(user){initUI();}else{go('login');}
+</script>
+</body>
+</html>
