@@ -282,8 +282,35 @@ input,select{font-family:var(--font)}
         <div class="sec-title" style="margin-bottom:9px">ความก้าวหน้า</div>
         <div id="prof-prog"></div>
       </div>
+      <div class="card" style="margin-bottom:11px">
+        <button class="btn-f btn-o" onclick="openChangePassword()" style="width:100%"><i class="ti ti-lock"></i>เปลี่ยนรหัสผ่าน</button>
+      </div>
       <div class="card">
         <button class="btn-f btn-o" onclick="doLogout()" style="color:var(--r)"><i class="ti ti-logout"></i>ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="cp-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px">
+      <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+        <div style="font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px"><i class="ti ti-lock" style="color:var(--p)"></i>เปลี่ยนรหัสผ่าน</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--g500);display:block;margin-bottom:4px">รหัสผ่านปัจจุบัน</label>
+          <input id="cp-cur" type="password" class="li" style="width:100%;box-sizing:border-box" placeholder="กรอกรหัสผ่านปัจจุบัน">
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--g500);display:block;margin-bottom:4px">รหัสผ่านใหม่</label>
+          <input id="cp-new" type="password" class="li" style="width:100%;box-sizing:border-box" placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="font-size:12px;font-weight:600;color:var(--g500);display:block;margin-bottom:4px">ยืนยันรหัสผ่านใหม่</label>
+          <input id="cp-conf" type="password" class="li" style="width:100%;box-sizing:border-box" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง">
+        </div>
+        <div id="cp-err" style="display:none;background:#fff0f0;color:var(--r,#d94040);font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-f btn-o" onclick="closeChangePassword()" style="flex:1">ยกเลิก</button>
+          <button class="btn-f btn-p" id="cp-save-btn" onclick="doChangePassword()" style="flex:1"><i class="ti ti-check"></i>บันทึก</button>
+        </div>
       </div>
     </div>
 
@@ -1483,6 +1510,43 @@ function renderProfile(){
   document.getElementById('pst-crs').textContent=COURSES.length;
   var ph=COURSES.map(function(c){var p=coursePct(c);var col=p===100?'pf-t':p>0?'pf-p':'pf-r';return'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+c.title+'</span><span style="font-weight:500">'+p+'%</span></div><div class="prog-bar"><div class="prog-fill '+col+'" style="width:'+p+'%"></div></div></div>';}).join('');
   document.getElementById('prof-prog').innerHTML=ph;
+}
+
+// ── Change Password (Employee self-service) ──
+function openChangePassword(){
+  document.getElementById('cp-cur').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-conf').value='';
+  document.getElementById('cp-err').style.display='none';
+  document.getElementById('cp-modal').style.display='flex';
+}
+function closeChangePassword(){
+  document.getElementById('cp-modal').style.display='none';
+}
+function doChangePassword(){
+  var cur=document.getElementById('cp-cur').value;
+  var nw=document.getElementById('cp-new').value;
+  var conf=document.getElementById('cp-conf').value;
+  var errEl=document.getElementById('cp-err');
+  function showErr(msg){errEl.textContent=msg;errEl.style.display='block';}
+  if(!cur||!nw||!conf){showErr('กรุณากรอกข้อมูลให้ครบ');return;}
+  if(nw.length<6){showErr('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');return;}
+  if(nw!==conf){showErr('รหัสผ่านใหม่ไม่ตรงกัน');return;}
+  errEl.style.display='none';
+  var btn=document.getElementById('cp-save-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>กำลังบันทึก...';
+  Promise.all([sha256(cur),sha256(nw)]).then(function(hashes){
+    postToGAS({eventType:'change_password',targetType:'employee',userId:user.id,currentPassword:hashes[0],newPassword:hashes[1]},function(ok2,res){
+      btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i>บันทึก';
+      if(ok2){
+        closeChangePassword();
+        alert('✓ เปลี่ยนรหัสผ่านสำเร็จ');
+      } else {
+        var msg=(res&&res.message)||'เกิดข้อผิดพลาด กรุณาลองใหม่';
+        showErr(msg==='รหัสผ่านปัจจุบันไม่ถูกต้อง'?'รหัสผ่านปัจจุบันไม่ถูกต้อง':msg);
+      }
+    });
+  });
 }
 
 // ═══════════════════════════════════════════

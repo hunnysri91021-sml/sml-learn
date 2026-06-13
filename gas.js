@@ -146,6 +146,8 @@ function doPost(e) {
     else if (eventType === 'add_admin')       result = withLock(function(){ return saveAdmin(body, false); });
     else if (eventType === 'edit_admin')      result = withLock(function(){ return saveAdmin(body, true); });
     else if (eventType === 'delete_admin')    result = withLock(function(){ return deleteAdmin(body); });
+    else if (eventType === 'change_password') result = withLock(function(){ return changePassword(body); });
+    else if (eventType === 'reset_password')  result = withLock(function(){ return resetPassword(body); });
     else if (eventType === 'send_deadline_reminders') result = sendDeadlineReminders(body);
     else if (eventType === 'send_monthly_report')     result = sendMonthlyReport(body);
     else result = fail('unknown eventType: ' + eventType);
@@ -677,6 +679,57 @@ function deleteAdmin(body) {
   if (row > 0) sh.deleteRow(row);
   logActivity(body, 'delete_admin');
   return ok({ adminId: String(body.adminId || ''), deleted: row > 0 });
+}
+
+// ── Change Password (self — must supply current password) ──
+function changePassword(body) {
+  var targetType = body.targetType || 'employee'; // 'employee' | 'admin'
+  var userId     = String(body.userId || '');
+  var currentPw  = hashPassword(body.currentPassword || '');
+  var newPw      = hashPassword(body.newPassword || '');
+  if (!userId || !body.currentPassword || !body.newPassword) return fail('missing fields');
+
+  if (targetType === 'admin') {
+    var sh  = getSheet(SHEETS.admins);
+    var row = findRowById(sh, 1, userId);
+    if (row < 1) return fail('ไม่พบ Admin');
+    var stored = hashPassword(String(sh.getRange(row, 5).getValue() || ''));
+    if (stored !== currentPw) return fail('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+    sh.getRange(row, 5).setValue(newPw);
+    return ok({ userId: userId });
+  } else {
+    var sh2  = getSheet(SHEETS.employees);
+    ensureHeader(sh2, ['EmployeeID','EmployeeName','Department','Position','Role','Password','StartDate','Email','Status','LastLogin']);
+    var row2 = findRowById(sh2, 1, userId);
+    if (row2 < 1) return fail('ไม่พบพนักงาน');
+    var stored2 = hashPassword(String(sh2.getRange(row2, 6).getValue() || ''));
+    if (stored2 !== currentPw) return fail('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+    sh2.getRange(row2, 6).setValue(newPw);
+    return ok({ userId: userId });
+  }
+}
+
+// ── Reset Password (Super Admin only — no current password needed) ──
+function resetPassword(body) {
+  var targetType = body.targetType || 'employee';
+  var userId     = String(body.userId || '');
+  var newPw      = hashPassword(body.newPassword || '');
+  if (!userId || !body.newPassword) return fail('missing fields');
+
+  if (targetType === 'admin') {
+    var sh  = getSheet(SHEETS.admins);
+    var row = findRowById(sh, 1, userId);
+    if (row < 1) return fail('ไม่พบ Admin');
+    sh.getRange(row, 5).setValue(newPw);
+    return ok({ userId: userId });
+  } else {
+    var sh2  = getSheet(SHEETS.employees);
+    ensureHeader(sh2, ['EmployeeID','EmployeeName','Department','Position','Role','Password','StartDate','Email','Status','LastLogin']);
+    var row2 = findRowById(sh2, 1, userId);
+    if (row2 < 1) return fail('ไม่พบพนักงาน');
+    sh2.getRange(row2, 6).setValue(newPw);
+    return ok({ userId: userId });
+  }
 }
 
 // ── Activity Log ──

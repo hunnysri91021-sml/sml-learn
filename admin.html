@@ -195,6 +195,9 @@ button{font-family:var(--font);cursor:pointer;border:none;background:none}input,
     <select id="view-as" onchange="changeRole()" style="width:100%;padding:4px 8px;border:1px solid rgba(255,255,255,.15);border-radius:6px;font-size:11px;color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);outline:none;margin-bottom:8px">
       <option value="sa">Super Admin</option><option value="hr" selected>HR Admin</option><option value="da">Dept Admin</option><option value="vw">Viewer</option>
     </select>
+    <button onclick="openAdminChangePassword()" style="width:100%;padding:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:7px;color:rgba(255,255,255,.7);font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px">
+      <i class="ti ti-lock" style="font-size:15px"></i>เปลี่ยนรหัสผ่าน
+    </button>
     <button onclick="doAdminLogout()" style="width:100%;padding:7px;background:rgba(217,64,64,.15);border:1px solid rgba(217,64,64,.3);border-radius:7px;color:#F07070;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
       <i class="ti ti-logout" style="font-size:15px"></i>ออกจากระบบ
     </button>
@@ -816,6 +819,40 @@ button{font-family:var(--font);cursor:pointer;border:none;background:none}input,
   </div>
 </div>
 
+<!-- MODAL: Change My Admin Password -->
+<div class="modal-bg" id="modal-adm-chpw">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title"><i class="ti ti-lock" style="color:var(--p)"></i> เปลี่ยนรหัสผ่านของฉัน</div>
+    <button class="modal-close" onclick="closeModal('adm-chpw')"><i class="ti ti-x"></i></button>
+    <div class="ff"><label class="fl">รหัสผ่านปัจจุบัน<span class="req">*</span></label><input class="fi" id="acp-cur" type="password" placeholder="กรอกรหัสผ่านปัจจุบัน"></div>
+    <div class="ff"><label class="fl">รหัสผ่านใหม่<span class="req">*</span></label><input class="fi" id="acp-new" type="password" placeholder="อย่างน้อย 6 ตัวอักษร"></div>
+    <div class="ff"><label class="fl">ยืนยันรหัสผ่านใหม่<span class="req">*</span></label><input class="fi" id="acp-conf" type="password" placeholder="กรอกอีกครั้ง"></div>
+    <div id="acp-err" style="display:none;background:#fff0f0;color:var(--r);font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:4px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('adm-chpw')">ยกเลิก</button>
+      <button class="btn btn-p" id="acp-save-btn" onclick="doAdminChangePassword()"><i class="ti ti-check"></i>บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Reset Password (Super Admin) -->
+<div class="modal-bg" id="modal-reset-pw">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title"><i class="ti ti-key" style="color:var(--a)"></i> รีเซ็ตรหัสผ่าน</div>
+    <button class="modal-close" onclick="closeModal('reset-pw')"><i class="ti ti-x"></i></button>
+    <div id="rp-target-info" style="background:var(--g50);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px"></div>
+    <div class="ff"><label class="fl">รหัสผ่านใหม่<span class="req">*</span></label><input class="fi" id="rp-new" type="password" placeholder="กำหนดรหัสผ่านใหม่"></div>
+    <div class="ff"><label class="fl">ยืนยันรหัสผ่านใหม่<span class="req">*</span></label><input class="fi" id="rp-conf" type="password" placeholder="กรอกอีกครั้ง"></div>
+    <div id="rp-err" style="display:none;background:#fff0f0;color:var(--r);font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:4px"></div>
+    <input type="hidden" id="rp-user-id">
+    <input type="hidden" id="rp-user-type">
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('reset-pw')">ยกเลิก</button>
+      <button class="btn btn-p" id="rp-save-btn" onclick="doResetPassword()"><i class="ti ti-key"></i>รีเซ็ต</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Add Quiz -->
 <div class="modal-bg" id="modal-add-quiz">
   <div class="modal">
@@ -1288,6 +1325,7 @@ function renderDashboard(){
 }
 
 function renderEmp(){
+  var isSA=currentAdmin&&currentAdmin.role==='Super Admin';
   var dept=document.getElementById('f-dept').value;
   var role=document.getElementById('f-role').value;
   var srch=document.getElementById('srch').value.toLowerCase();
@@ -1315,6 +1353,7 @@ function renderEmp(){
         '<button class="btn btn-o btn-sm" onclick="viewEmp(\''+eid+'\')" title="ดูข้อมูล"><i class="ti ti-eye"></i></button>'+
         '<button class="btn btn-p btn-sm" onclick="openAssignCourse(\''+eid+'\')" title="จัดหลักสูตร"><i class="ti ti-book-upload"></i></button>'+
         '<button class="btn btn-o btn-sm" onclick="editEmp(\''+eid+'\')" title="แก้ไข"><i class="ti ti-edit"></i></button>'+
+        (isSA?'<button class="btn btn-sm" style="background:var(--al);color:var(--a);border:1px solid var(--a)" onclick="openResetPassword(\''+eid+'\',\'employee\')" title="รีเซ็ตรหัสผ่าน"><i class="ti ti-key"></i></button>':'')+
         '<button class="btn btn-r btn-sm" onclick="deleteEmp(\''+eid+'\')" title="ลบ"><i class="ti ti-trash"></i></button>'+
       '</td></tr>';
   }).join('');
@@ -1864,6 +1903,7 @@ function renderAdminList(){
     var actionCell=(isSA||!isSARow)
       ?'<td style="display:flex;gap:4px">'+
           '<button class="btn btn-o btn-sm" onclick="editAdmin(\''+a.id+'\')"><i class="ti ti-edit"></i></button>'+
+          (isSA&&!isCurrent?'<button class="btn btn-sm" style="background:var(--al);color:var(--a);border:1px solid var(--a)" onclick="openResetPassword(\''+a.id+'\',\'admin\')" title="รีเซ็ตรหัสผ่าน"><i class="ti ti-key"></i></button>':'')+
           (!isCurrent?'<button class="btn btn-r btn-sm" onclick="deleteAdmin(\''+a.id+'\')"><i class="ti ti-trash"></i></button>':'')+
         '</td>'
       :'<td><span style="color:var(--g300);font-size:11px">—</span></td>';
@@ -1947,6 +1987,77 @@ function syncAdminToSheets(a,isEdit){
   var payload={eventType:isEdit?'edit_admin':'add_admin',adminId:a.id,adminName:a.name,role:a.role,department:a.dept,password:a.pass,status:a.status,timestamp:new Date().toISOString()};
   sendToGAS(payload,function(ok){
     if(ok)showToast('✓ Sync Admin "'+a.name+'" ไป Sheets แล้ว','ok');
+  });
+}
+
+// ── Change My Admin Password ──
+function openAdminChangePassword(){
+  document.getElementById('acp-cur').value='';
+  document.getElementById('acp-new').value='';
+  document.getElementById('acp-conf').value='';
+  document.getElementById('acp-err').style.display='none';
+  openModal('adm-chpw');
+}
+function doAdminChangePassword(){
+  var cur=document.getElementById('acp-cur').value.trim();
+  var nw=document.getElementById('acp-new').value.trim();
+  var conf=document.getElementById('acp-conf').value.trim();
+  var errEl=document.getElementById('acp-err');
+  function showErr(msg){errEl.textContent=msg;errEl.style.display='block';}
+  if(!cur||!nw||!conf){showErr('กรุณากรอกข้อมูลให้ครบ');return;}
+  if(nw.length<6){showErr('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');return;}
+  if(nw!==conf){showErr('รหัสผ่านใหม่ไม่ตรงกัน');return;}
+  errEl.style.display='none';
+  var btn=document.getElementById('acp-save-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>...';
+  sendToGAS({eventType:'change_password',targetType:'admin',userId:currentAdmin.id,currentPassword:cur,newPassword:nw},function(ok2,res){
+    btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i>บันทึก';
+    if(ok2){
+      closeModal('adm-chpw');
+      showToast('✓ เปลี่ยนรหัสผ่านสำเร็จ','ok');
+    } else {
+      var msg=(res&&res.message)||'เกิดข้อผิดพลาด';
+      showErr(msg==='รหัสผ่านปัจจุบันไม่ถูกต้อง'?'รหัสผ่านปัจจุบันไม่ถูกต้อง':msg);
+    }
+  });
+}
+
+// ── Reset Password (Super Admin only) ──
+function openResetPassword(userId, userType){
+  if(!currentAdmin||currentAdmin.role!=='Super Admin'){showToast('เฉพาะ Super Admin เท่านั้น','err');return;}
+  var label=userType==='admin'
+    ? (ADMINS.find(function(a){return a.id===userId;})||{name:userId}).name
+    : (EMPLOYEES.find(function(e){return String(e.id)===String(userId);})||{name:userId}).name;
+  document.getElementById('rp-target-info').innerHTML='<i class="ti ti-user" style="margin-right:6px"></i><strong>'+label+'</strong> ('+userId+')';
+  document.getElementById('rp-new').value='';
+  document.getElementById('rp-conf').value='';
+  document.getElementById('rp-err').style.display='none';
+  document.getElementById('rp-user-id').value=userId;
+  document.getElementById('rp-user-type').value=userType;
+  openModal('reset-pw');
+}
+function doResetPassword(){
+  var nw=document.getElementById('rp-new').value.trim();
+  var conf=document.getElementById('rp-conf').value.trim();
+  var userId=document.getElementById('rp-user-id').value;
+  var userType=document.getElementById('rp-user-type').value;
+  var errEl=document.getElementById('rp-err');
+  function showErr(msg){errEl.textContent=msg;errEl.style.display='block';}
+  if(!nw||!conf){showErr('กรุณากรอกรหัสผ่านใหม่');return;}
+  if(nw.length<6){showErr('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');return;}
+  if(nw!==conf){showErr('รหัสผ่านไม่ตรงกัน');return;}
+  errEl.style.display='none';
+  var btn=document.getElementById('rp-save-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>...';
+  sendToGAS({eventType:'reset_password',targetType:userType,userId:userId,newPassword:nw},function(ok2,res){
+    btn.disabled=false;btn.innerHTML='<i class="ti ti-key"></i>รีเซ็ต';
+    if(ok2){
+      closeModal('reset-pw');
+      showToast('✓ รีเซ็ตรหัสผ่านของ "'+userId+'" แล้ว','ok');
+    } else {
+      var msg=(res&&res.message)||'เกิดข้อผิดพลาด';
+      showErr(msg);
+    }
   });
 }
 
