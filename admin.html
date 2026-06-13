@@ -1377,7 +1377,10 @@ function syncCourseToGAS(c){
     id:c.id,title:c.title,type:c.type,hours:c.hours,
     dept:c.dept,deadline:c.deadline,color:c.color,icon:c.icon,pass:c.pass,
     modules:JSON.stringify(c.modules||[])
-  },null);
+  },function(ok){
+    if(!ok) showToast('⚠️ บันทึกหลักสูตรไปยัง Google Sheets ไม่สำเร็จ กรุณาตรวจสอบ GAS URL','err');
+    else showToast('✅ Sync หลักสูตร "'+c.title+'" ไปยัง Google Sheets แล้ว','ok');
+  });
 }
 
 
