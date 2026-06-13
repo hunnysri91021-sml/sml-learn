@@ -1852,20 +1852,30 @@ function updateSyncDot(s){
 function renderAdminList(){
   document.getElementById('adm-count').textContent=ADMINS.length+' Admin';
   var rb={'Super Admin':'b-sa','HR Admin':'b-hr','Dept Admin':'b-da','Viewer':'b-vw'};
+  var isSA=currentAdmin&&currentAdmin.role==='Super Admin';
   var html=ADMINS.map(function(a){
     var sb=a.status==='active'?'<span class="badge b-done">Active</span>':'<span class="badge b-late">Inactive</span>';
     var isCurrent=currentAdmin&&currentAdmin.id===a.id;
+    var isSARow=a.role==='Super Admin';
+    // non-SA ไม่เห็น password column และไม่มี edit/delete ของ SA
+    var passCell=(!isSA&&isSARow)
+      ?'<td><span style="color:var(--g300);font-size:11px">—</span></td>'
+      :'<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">••••••</code></td>';
+    var actionCell=(isSA||!isSARow)
+      ?'<td style="display:flex;gap:4px">'+
+          '<button class="btn btn-o btn-sm" onclick="editAdmin(\''+a.id+'\')"><i class="ti ti-edit"></i></button>'+
+          (!isCurrent?'<button class="btn btn-r btn-sm" onclick="deleteAdmin(\''+a.id+'\')"><i class="ti ti-trash"></i></button>':'')+
+        '</td>'
+      :'<td><span style="color:var(--g300);font-size:11px">—</span></td>';
     return '<tr>'+
       '<td><strong>'+a.id+'</strong>'+(isCurrent?' <span class="badge b-prog" style="font-size:10px">คุณ</span>':'')+'</td>'+
       '<td>'+a.name+'</td>'+
       '<td><span class="badge '+(rb[a.role]||'b-todo')+'">'+a.role+'</span></td>'+
       '<td>'+a.dept+'</td>'+
-      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">••••••</code></td>'+
+      passCell+
       '<td>'+sb+'</td>'+
-      '<td style="display:flex;gap:4px">'+
-        '<button class="btn btn-o btn-sm" onclick="editAdmin(\''+a.id+'\')"><i class="ti ti-edit"></i></button>'+
-        (!isCurrent?'<button class="btn btn-r btn-sm" onclick="deleteAdmin(\''+a.id+'\')"><i class="ti ti-trash"></i></button>':'')+
-      '</td></tr>';
+      actionCell+
+    '</tr>';
   }).join('');
   var body=document.getElementById('admin-list-body');
   if(body)body.innerHTML=html||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--g400)">ไม่มีข้อมูล</td></tr>';
@@ -1887,6 +1897,7 @@ function openAddAdmin(){
 
 function editAdmin(id){
   var a=ADMINS.find(function(x){return x.id===id;});if(!a)return;
+  if(a.role==='Super Admin'&&(!currentAdmin||currentAdmin.role!=='Super Admin')){showToast('ไม่มีสิทธิ์แก้ไข Super Admin','err');return;}
   document.getElementById('adm-modal-title').textContent='แก้ไข Admin: '+a.id;
   document.getElementById('adm-save-btn').innerHTML='<i class="ti ti-check"></i>บันทึกการแก้ไข';
   document.getElementById('adm-editing-id').value=a.id;
@@ -1923,6 +1934,7 @@ function saveAdmin(){
 function deleteAdmin(id){
   if(currentAdmin&&currentAdmin.id===id){showToast('ไม่สามารถลบบัญชีตัวเองได้','err');return;}
   var a=ADMINS.find(function(x){return x.id===id;});if(!a)return;
+  if(a.role==='Super Admin'&&(!currentAdmin||currentAdmin.role!=='Super Admin')){showToast('ไม่มีสิทธิ์ลบ Super Admin','err');return;}
   if(!confirm('ลบ Admin '+a.name+' ?'))return;
   ADMINS=ADMINS.filter(function(x){return x.id!==id;});
   localStorage.setItem('sml_admins',JSON.stringify(ADMINS));
