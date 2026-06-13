@@ -13,6 +13,7 @@
 
 // ใช้ Sheet ID ตรง ๆ เพื่อให้ deploy ได้ทั้งแบบ bound script และ standalone script
 var SHEET_ID = '1srt8VJhsDMfnqX_EMvlfV_EvwrYA3ZlGZWVgEBiTKNM';
+var API_SECRET = 'sml-secret-2026';
 
 var SHEETS = {
   employees:        'Employees',
@@ -69,6 +70,17 @@ function respond(result, callback) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function checkSecret(body) {
+  return body.apiSecret === API_SECRET;
+}
+
+function hashPassword(plain) {
+  if (!plain) return '';
+  if (/^[0-9a-f]{64}$/.test(String(plain))) return String(plain);
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(plain), Utilities.Charset.UTF_8);
+  return bytes.map(function(b){ return (b < 0 ? b + 256 : b).toString(16).padStart(2,'0'); }).join('');
+}
+
 function withLock(fn) {
   var lock = LockService.getScriptLock();
   try {
@@ -115,6 +127,8 @@ function doPost(e) {
   try {
     var body = JSON.parse((e.postData && e.postData.contents) || '{}');
     var eventType = body.eventType || '';
+
+    if (!checkSecret(body)) return respond(fail('unauthorized'));
 
     if      (eventType === 'push_all')        result = withLock(function(){ return pushAll(body); });
     else if (eventType === 'save_employee')   result = withLock(function(){ return saveEmployee(body); });
@@ -390,7 +404,7 @@ function pushAll(body) {
     'EmployeeID','EmployeeName','Department','Position','Role','Password','StartDate','Email','Status','LastLogin'
   ], function(e) {
     return [e.employeeId||'', e.employeeName||'', e.department||'', e.position||'พนักงาน',
-            e.role||'พนักงาน', e.password||'', e.startDate||'', e.email||'',
+            e.role||'พนักงาน', hashPassword(e.password||''), e.startDate||'', e.email||'',
             e.status||'active', e.lastLogin||''];
   });
 
@@ -405,7 +419,7 @@ function pushAll(body) {
   if (body.admins) overwriteSheet(SHEETS.admins, body.admins, [
     'AdminID','AdminName','Role','Department','Password','Status'
   ], function(a) {
-    return [a.adminId||'', a.adminName||'', a.role||'', a.department||'ทุกแผนก', a.password||'', a.status||'active'];
+    return [a.adminId||'', a.adminName||'', a.role||'', a.department||'ทุกแผนก', hashPassword(a.password||''), a.status||'active'];
   });
 
   logActivity({ eventType:'push_all', employeeId:'ADMIN', employeeName:'Admin', department:'-' }, 'push_all');
@@ -431,7 +445,7 @@ function saveEmployee(body) {
   var row = findRowById(sh, 1, body.employeeId);
   var data = [
     body.employeeId||'', body.employeeName||'', body.department||'',
-    body.position||'พนักงาน', body.role||'พนักงาน', body.password||'',
+    body.position||'พนักงาน', body.role||'พนักงาน', hashPassword(body.password||''),
     body.startDate||'', body.email||'', body.status||'active',
     body.lastLogin||''
   ];
@@ -646,7 +660,7 @@ function saveAdmin(body, isEdit) {
   var row = isEdit ? findRowById(sh, 1, body.adminId) : -1;
   var data = [
     body.adminId||'', body.adminName||'', body.role||'',
-    body.department||'', body.password||'', body.status||'active'
+    body.department||'', hashPassword(body.password||''), body.status||'active'
   ];
   if (row > 0) {
     sh.getRange(row, 1, 1, data.length).setValues([data]);

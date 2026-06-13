@@ -1483,6 +1483,7 @@ var _gasQueueCallbacks={};
 function postToGAS(payload, cb) {
   if(!GAS_URL){if(cb)cb(false);return;}
   payload=payload||{};
+  if(!payload.apiSecret) payload.apiSecret='sml-secret-2026';
   var item={
     id:'q_'+Date.now()+'_'+Math.random().toString(36).slice(2),
     payload:payload,

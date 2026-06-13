@@ -995,13 +995,24 @@ function doAdminLogin(){
   }
 }
 
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 function checkAdminLogin(id,pass){
-  var admin=ADMINS.find(function(a){return a.id===id&&a.pass===pass&&a.status==='active';});
-  if(!admin){
-    document.getElementById('adm-err').style.display='block';
-    document.getElementById('adm-pass').value='';
-    return;
-  }
+  sha256(pass).then(function(hashed){
+    var admin=ADMINS.find(function(a){return a.id===id&&(a.pass===hashed||a.pass===pass)&&a.status==='active';});
+    if(!admin){
+      document.getElementById('adm-err').style.display='block';
+      document.getElementById('adm-pass').value='';
+      return;
+    }
+    _finishAdminLogin(admin);
+  });
+}
+
+function _finishAdminLogin(admin){
   currentAdmin=admin;
   admin._loginTime = Date.now();
   localStorage.setItem('sml_current_admin',JSON.stringify(admin));
@@ -1178,6 +1189,7 @@ function pushAllToSheets(){
   document.getElementById('gas-result').textContent='⏳ กำลัง Push...';
 
   var payload={
+    apiSecret:'sml-secret-2026',
     eventType:'push_all',
     employees:EMPLOYEES.map(function(e){return{
       employeeId:e.id,employeeName:e.name,department:e.dept,position:e.pos||'พนักงาน',
@@ -1808,10 +1820,11 @@ function onSearch(){
 // ═══════════════ GAS SYNC ═══════════════
 function sendToGAS(payload, cb){
   if(!gasUrl){if(cb)cb(false);return;}
+  var securedPayload = Object.assign({apiSecret: 'sml-secret-2026'}, payload);
   fetch(gasUrl, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload)
+    body:JSON.stringify(securedPayload)
   }).then(function(r){
     return r.json();
   }).then(function(res){
@@ -1820,7 +1833,7 @@ function sendToGAS(payload, cb){
     if(cb)cb(ok2,res);
   }).catch(function(){
     // fallback no-cors สำหรับกรณี CORS block
-    fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+    fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(securedPayload)})
       .then(function(){updateSyncDot('ok');if(cb)cb(true);})
       .catch(function(){updateSyncDot('err');if(cb)cb(false);});
   });
