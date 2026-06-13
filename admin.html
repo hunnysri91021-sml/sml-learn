@@ -1805,17 +1805,18 @@ function onSearch(){
 // ═══════════════ GAS SYNC ═══════════════
 function sendToGAS(payload, cb){
   if(!gasUrl){if(cb)cb(false);return;}
-  // GAS ต้องการ Content-Type: text/plain เท่านั้น (application/json trigger preflight ที่ block ได้)
   fetch(gasUrl, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload)
   }).then(function(r){
-    // POST no-cors จะ return opaque response — ถือว่าสำเร็จ
-    updateSyncDot('ok');
-    if(cb)cb(true);
+    return r.json();
+  }).then(function(res){
+    var ok2=res&&res.status==='ok';
+    updateSyncDot(ok2?'ok':'err');
+    if(cb)cb(ok2,res);
   }).catch(function(){
-    // fallback no-cors สำหรับกรณี CORS error
+    // fallback no-cors สำหรับกรณี CORS block
     fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
       .then(function(){updateSyncDot('ok');if(cb)cb(true);})
       .catch(function(){updateSyncDot('err');if(cb)cb(false);});
@@ -2289,7 +2290,10 @@ function saveAssignCourse(){
   showToast('✅ บันทึกหลักสูตรให้ '+(emp?emp.name:empId)+' (บังคับ '+ea.required.length+' วิชา) สำเร็จ','ok');
   if(gasUrl){
     sendToGAS({eventType:'save_assign',employeeId:empId,required:ea.required,deadlines:ea.deadlines},null);
-    sendToGAS({eventType:'save_optional',optional:optional},null);
+    sendToGAS({eventType:'save_optional',optional:optional},function(ok){
+      if(!ok) showToast('⚠️ บันทึกหลักสูตรเสริมไปยัง Google Sheets ไม่สำเร็จ กรุณาตรวจสอบ GAS URL','err');
+      else showToast('✅ บันทึกหลักสูตรเสริม '+optional.length+' วิชา ไปยัง Google Sheets แล้ว','ok');
+    });
   }
 }
 function bulkAssignByDept(){
