@@ -789,7 +789,7 @@ button{font-family:var(--font);cursor:pointer;border:none;background:none}input,
       <div class="ff"><label class="fl">แผนก<span class="req">*</span></label><select class="fi" id="e-dept"><option>ปฏิบัติการ PDI</option><option>Transportation</option><option>Yard Management</option><option>HR & GA</option><option>Safety</option></select></div>
       <div class="ff"><label class="fl">ตำแหน่ง</label><input class="fi" id="e-pos" placeholder="เช่น พนักงาน, หัวหน้า"></div>
       <div class="ff"><label class="fl">Role</label><select class="fi" id="e-role"><option value="พนักงาน">พนักงาน</option><option value="หัวหน้าแผนก">หัวหน้าแผนก</option><option value="HR Admin">HR Admin</option><option value="Viewer">Viewer</option></select></div>
-      <div class="ff"><label class="fl">รหัสผ่าน App<span class="req">*</span></label><input class="fi" id="e-pass" placeholder="กำหนดรหัสผ่าน"></div>
+      <div class="ff"><label class="fl">รหัสผ่าน App<span class="req">*</span></label><input class="fi" id="e-pass" type="password" placeholder="กำหนดรหัสผ่าน"></div>
       <div class="ff"><label class="fl">วันที่เริ่มงาน</label><input class="fi" id="e-start" type="date"></div>
       <div class="ff"><label class="fl">อีเมล</label><input class="fi" id="e-email" placeholder="email@sml.co.th"></div>
       <div class="ff full"><label class="fl">สถานะ</label><select class="fi" id="e-status"><option value="active">Active — ใช้งานได้</option><option value="inactive">Inactive — ระงับการใช้งาน</option></select></div>
@@ -995,13 +995,24 @@ function doAdminLogin(){
   }
 }
 
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 function checkAdminLogin(id,pass){
-  var admin=ADMINS.find(function(a){return a.id===id&&a.pass===pass&&a.status==='active';});
-  if(!admin){
-    document.getElementById('adm-err').style.display='block';
-    document.getElementById('adm-pass').value='';
-    return;
-  }
+  sha256(pass).then(function(hashed){
+    var admin=ADMINS.find(function(a){return a.id===id&&(a.pass===hashed||a.pass===pass)&&a.status==='active';});
+    if(!admin){
+      document.getElementById('adm-err').style.display='block';
+      document.getElementById('adm-pass').value='';
+      return;
+    }
+    _finishAdminLogin(admin);
+  });
+}
+
+function _finishAdminLogin(admin){
   currentAdmin=admin;
   admin._loginTime = Date.now();
   localStorage.setItem('sml_current_admin',JSON.stringify(admin));
@@ -1178,6 +1189,7 @@ function pushAllToSheets(){
   document.getElementById('gas-result').textContent='⏳ กำลัง Push...';
 
   var payload={
+    apiSecret:'sml-secret-2026',
     eventType:'push_all',
     employees:EMPLOYEES.map(function(e){return{
       employeeId:e.id,employeeName:e.name,department:e.dept,position:e.pos||'พนักงาน',
@@ -1295,7 +1307,7 @@ function renderEmp(){
       '<td>'+e.dept+'</td>'+
       '<td>'+(e.pos||'พนักงาน')+'</td>'+
       '<td><span class="badge '+(rb[e.role]||'b-todo')+'">'+(e.role||'พนักงาน')+'</span></td>'+
-      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">'+e.pass+'</code></td>'+
+      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">••••••</code></td>'+
       '<td>'+sb+'</td>'+
       '<td><div class="mp"><div class="prog-bar"><div class="prog-fill '+col+'" style="width:'+qp+'%"></div></div><div class="mp-n">'+qp+'%</div></div></td>'+
       '<td style="font-size:11px;color:var(--g400)">'+(e.lastLogin||'—')+'</td>'+
@@ -1565,7 +1577,7 @@ function viewEmp(id){
     '<table class="tbl" style="margin-bottom:14px"><tbody>'+
     '<tr><td style="color:var(--g400);width:38%">ตำแหน่ง</td><td>'+(e.pos||'พนักงาน')+'</td></tr>'+
     '<tr><td style="color:var(--g400)">Role</td><td>'+e.role+'</td></tr>'+
-    '<tr><td style="color:var(--g400)">รหัสผ่าน App</td><td><code style="background:var(--g100);padding:2px 8px;border-radius:5px;font-size:12px">'+e.pass+'</code></td></tr>'+
+    '<tr><td style="color:var(--g400)">รหัสผ่าน App</td><td><code style="background:var(--g100);padding:2px 8px;border-radius:5px;font-size:12px">••••••</code></td></tr>'+
     '<tr><td style="color:var(--g400)">สถานะ</td><td>'+(e.status==='active'?'<span class="badge b-done">Active</span>':'<span class="badge b-late">Inactive</span>')+'</td></tr>'+
     '<tr><td style="color:var(--g400)">อีเมล</td><td>'+(e.email||'—')+'</td></tr>'+
     '<tr><td style="color:var(--g400)">วันที่เริ่มงาน</td><td>'+(e.startDate||'—')+'</td></tr>'+
@@ -1808,10 +1820,11 @@ function onSearch(){
 // ═══════════════ GAS SYNC ═══════════════
 function sendToGAS(payload, cb){
   if(!gasUrl){if(cb)cb(false);return;}
+  var securedPayload = Object.assign({apiSecret: 'sml-secret-2026'}, payload);
   fetch(gasUrl, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload)
+    body:JSON.stringify(securedPayload)
   }).then(function(r){
     return r.json();
   }).then(function(res){
@@ -1820,7 +1833,7 @@ function sendToGAS(payload, cb){
     if(cb)cb(ok2,res);
   }).catch(function(){
     // fallback no-cors สำหรับกรณี CORS block
-    fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+    fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(securedPayload)})
       .then(function(){updateSyncDot('ok');if(cb)cb(true);})
       .catch(function(){updateSyncDot('err');if(cb)cb(false);});
   });
@@ -1847,7 +1860,7 @@ function renderAdminList(){
       '<td>'+a.name+'</td>'+
       '<td><span class="badge '+(rb[a.role]||'b-todo')+'">'+a.role+'</span></td>'+
       '<td>'+a.dept+'</td>'+
-      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">'+a.pass+'</code></td>'+
+      '<td><code style="background:var(--g100);padding:2px 7px;border-radius:5px;font-size:11px">••••••</code></td>'+
       '<td>'+sb+'</td>'+
       '<td style="display:flex;gap:4px">'+
         '<button class="btn btn-o btn-sm" onclick="editAdmin(\''+a.id+'\')"><i class="ti ti-edit"></i></button>'+
@@ -2043,7 +2056,7 @@ function parseEmpRows(rows){
       '<td>'+e.dept+'</td>'+
       '<td>'+e.pos+'</td>'+
       '<td><span class="badge b-todo">'+e.role+'</span></td>'+
-      '<td><code style="background:var(--g100);padding:2px 6px;border-radius:4px;font-size:11px">'+e.pass+'</code></td>'+
+      '<td><code style="background:var(--g100);padding:2px 6px;border-radius:4px;font-size:11px">••••••</code></td>'+
       '<td>'+(sbMap[e.status]||sbMap.active)+'</td></tr>';
   }).join('');
 
