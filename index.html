@@ -601,6 +601,11 @@ function loadEmployees(cb){
 // ═══════════════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════════════
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 function normalizeId(val){
   return String(val||'').trim().toUpperCase().replace(/\s+/g,'');
 }
@@ -608,9 +613,14 @@ function normalizeId(val){
 // ── หา employee โดย match แบบ flexible ──
 function findEmployee(list, inputId, inputPass){
   var nInput = normalizeId(inputId);
+  // support both plain text and hashed passwords
+  var passMatch = function(stored, input) {
+    var s = String(stored).trim();
+    return s === input || s === String(input).trim();
+  };
   // 1. ตรงแน่นอน (case-insensitive)
   var emp = list.find(function(e){
-    return normalizeId(e.id)===nInput && String(e.pass).trim()===inputPass;
+    return normalizeId(e.id)===nInput && passMatch(e.pass, inputPass);
   });
   if(emp) return emp;
   // 2. ถ้า input เป็นตัวเลขล้วน → ลอง match หลัง prefix (เช่น "001" → "SML-001")
@@ -619,7 +629,7 @@ function findEmployee(list, inputId, inputPass){
     emp = list.find(function(e){
       var parts = normalizeId(e.id).split(/[-_]/);
       var num = parts[parts.length-1].replace(/^0+/,'') || '0';
-      return num === padded && String(e.pass).trim()===inputPass;
+      return num === padded && passMatch(e.pass, inputPass);
     });
   }
   return emp || null;
@@ -634,9 +644,10 @@ function doLogin(){
   var origHTML=btn.innerHTML;
   btn.innerHTML='<i class="ti ti-loader" style="font-size:17px;animation:spin 1s linear infinite"></i>กำลังเข้าสู่ระบบ...';
   btn.disabled=true;
+  sha256(pass).then(function(hashedPass){
   loadEmployees(function(list){
     btn.innerHTML=origHTML;btn.disabled=false;
-    var emp=findEmployee(list, id, pass);
+    var emp=findEmployee(list, id, hashedPass) || findEmployee(list, id, pass);
     if(!emp){document.getElementById('login-err').style.display='block';return;}
     // ใช้ emp.id จาก Sheets เสมอ (canonical ID เช่น SML-001) ไม่ใช้ที่พนักงานพิมพ์
     var canonicalId = emp.id;
@@ -651,6 +662,7 @@ function doLogin(){
       initUI();
     });
   });
+  }); // end sha256.then
 }
 
 function doLogout(){
